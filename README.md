@@ -16,7 +16,7 @@ Very early stage, contributions and ideas are welcome!
 pip3 install pipx
 ```
 
-The following one-liner both installs and runs this program from [PyPI](https://pypi.org/project/compliance-assistant/):
+The following one-liner both installs and runs this program from [PyPI](https://pypi.org/project/todo-merger/):
 
 ```sh
 pipx run todo-merger
@@ -30,7 +30,7 @@ pipx install todo-merger
 
 todo-merger will then be available in `~/.local/bin`, which must be added to your `$PATH`. On Windows, the required path for your environment may look like `%USERPROFILE%\AppData\Roaming\Python\Python310\Scripts`, depending on the Python version you have installed.
 
-To upgrade compliance-assistant to the newest available version, run this command:
+To upgrade todo-merger to the newest available version, run this command:
 
 ```sh
 pipx upgrade todo-merger
