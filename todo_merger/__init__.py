@@ -5,6 +5,7 @@ import logging
 import sys
 from importlib.metadata import version
 
+import setuptools
 from flask import Flask
 from github import Github
 from gitlab import Gitlab
