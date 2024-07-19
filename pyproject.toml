@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "todo-merger"
 version = "0.1.0"
-description = "To be filled"
-# repository = ""
-authors = ["Max Mehl <mail@deutschebahn.com>"]
+description = "Overview of your assigned issues on GitHub and GitLab"
+repository = "https://github.com/mxmehl/todo-merger"
+authors = ["Max Mehl <mail@mehl.mx>"]
 readme = "README.md"
 keywords = []
-# license = ""
+license = "GPL-3.0-only"
 classifiers = []
 packages = [{ include = "todo_merger" }]
 
