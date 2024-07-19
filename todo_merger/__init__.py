@@ -3,6 +3,7 @@
 import argparse
 import logging
 import sys
+from importlib.metadata import version
 
 from flask import Flask
 from github import Github
@@ -12,7 +13,7 @@ from sassutils.wsgi import SassMiddleware
 from ._auth import github_login, gitlab_login
 from ._config import get_app_config
 
-logging.basicConfig(level=logging.DEBUG)
+__version__ = version("todo-merger")
 
 parser = argparse.ArgumentParser(
     description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -22,6 +23,10 @@ parser.add_argument(
     "--config-file",
     help="Path to the app config file in a non-default location",
 )
+parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def load_app_config(config_file: str) -> dict[str, tuple[str, Github | Gitlab]]:
