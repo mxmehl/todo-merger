@@ -64,7 +64,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/poetrybuild
       - name: Lint with pylint
-        run: poetry run pylint todo_merger/
+        run: poetry run pylint --disable=fixme todo_merger/
 
   formatting:
     runs-on: ubuntu-22.04
