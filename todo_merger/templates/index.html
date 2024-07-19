@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Issues Assigned to me
+</h1>
+
+{%- for issue in issues %}
+<div class="issue">
+  {# First line: Title and Service #}
+  <div class="title">
+    {{- issue.title }}
+    {%- if issue.service == "gitlab" %}
+    <i class="fa-brands fa-square-gitlab" title="GitLab"></i>
+    {%- elif issue.service == "github" %}
+    <i class="fa-brands fa-square-github" title="GitHub"></i>
+    {%- elif issue.service == "todo" %}
+    <i class="fa-solid fa-arrow-up-right-from-square" title="To Do"></i>
+    {%- endif %}
+  </div>
+  <div class="metadata">
+    {% if issue.due_date %}
+    <span title="Due date"><i class="fa-regular fa-calendar"></i> {{ issue.due_date }}</span>
+    {% endif %}
+    {% if issue.milestone_title %}
+    <span title="Milestone"><i class="fa-regular fa-circle-dot"></i> {{ issue.milestone_title }}
+    </span>
+    {% endif %}
+    {% if issue.epic_title %}
+    <span title="Epic"><i class="fa-regular fa-circle-dot"></i> {{ issue.epic_title }}</span>
+    {% endif %}
+    {% if issue.assignee_user %}
+    <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_user }}</span>
+    {% endif %}
+    {% if issue.ref %}
+    <span title="Reference"><i class="fa-solid fa-map"></i> {{ issue.ref }}</span>
+    {% endif %}
+    {% if issue.web_url %}
+    <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
+    {% endif %}
+  </div>
+</div>
+{%- endfor %}
+{% endblock %}

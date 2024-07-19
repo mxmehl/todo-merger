@@ -1,0 +1,14 @@
+.issue {
+  padding: 10px 0 10px 0;
+
+  .title {
+    font-weight: 700;
+  }
+  .metadata {
+    font-size: smaller;
+
+    span {
+      margin-right: 10px;
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.issue {
+  padding: 10px 0 10px 0; }
+  .issue .title {
+    font-weight: 700; }
+  .issue .metadata {
+    font-size: smaller; }
+    .issue .metadata span {
+      margin-right: 10px; }
+
+/*# sourceMappingURL=custom.scss.css.map */
