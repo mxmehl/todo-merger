@@ -19,6 +19,9 @@
     {%- endif %}
   </div>
   <div class="metadata">
+    {% if issue.ref %}
+    <span title="Reference"><i class="fa-solid fa-map"></i> {{ issue.ref }}</span>
+    {% endif %}
     {% if issue.due_date %}
     <span title="Due date"><i class="fa-regular fa-calendar"></i> {{ issue.due_date }}</span>
     {% endif %}
@@ -29,11 +32,8 @@
     {% if issue.epic_title %}
     <span title="Epic"><i class="fa-regular fa-circle-dot"></i> {{ issue.epic_title }}</span>
     {% endif %}
-    {% if issue.assignee_user %}
-    <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_user }}</span>
-    {% endif %}
-    {% if issue.ref %}
-    <span title="Reference"><i class="fa-solid fa-map"></i> {{ issue.ref }}</span>
+    {% if issue.assignee_users %}
+    <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_users }}</span>
     {% endif %}
     {% if issue.web_url %}
     <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
