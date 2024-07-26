@@ -32,7 +32,7 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
     """Get all issues assigned to authenticated user"""
     issues: list[IssueItem] = []
     for issue in gitlab.issues.list(
-        assignee_username=gitlab.user.username, state="opened"  # type: ignore
+        assignee_username=gitlab.user.username, state="opened", scope="all"  # type: ignore
     ):
         # See https://docs.gitlab.com/ee/api/issues.html
         d = IssueItem()
