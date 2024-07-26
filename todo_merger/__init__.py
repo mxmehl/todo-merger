@@ -132,6 +132,7 @@ def create_app(config_file: str):
     # Reload templates
     app.jinja_env.auto_reload = True
     app.jinja_env.lstrip_blocks = False
+    app.jinja_env.globals["app_version"] = __version__
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     # Set werkzeug logging level to the global logging level
