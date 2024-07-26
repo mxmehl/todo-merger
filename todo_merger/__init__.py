@@ -7,13 +7,18 @@ import sys
 from importlib.metadata import version
 from os import kill, path
 
-import daemon
-import daemon.pidfile
 from flask import Flask
 from github import Github
 from gitlab import Gitlab
 from platformdirs import user_log_dir, user_runtime_dir
 from sassutils.wsgi import SassMiddleware
+
+try:
+    import daemon
+    import daemon.pidfile
+# pwd does not exist on Windows, we cannot daemonize there
+except (ModuleNotFoundError, ImportError):
+    daemon = None
 
 from ._auth import github_login, gitlab_login
 from ._config import default_config_file_path, get_app_config
@@ -188,6 +193,10 @@ def main():
     # Start app
     print("ToDo Merger will be available on http://localhost:8636")
     if args.daemon:
+        if daemon is None:
+            sys.exit(
+                "Daemonizing this app is not possible on your system, e.g. because it's Windows."
+            )
         with daemon.DaemonContext(pidfile=daemon.pidfile.TimeoutPIDLockFile(args.pidfile)):
             # Add file logger
             logger.addHandler(logging.FileHandler(args.logfile))
