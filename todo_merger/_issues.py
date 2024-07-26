@@ -1,11 +1,11 @@
 """Handling issues which come in from different sources"""
 
 import logging
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from urllib.parse import urlparse
 
 from flask import current_app
-from github import Github
+from github import AuthenticatedUser, Github
 from gitlab import Gitlab
 
 
@@ -13,7 +13,7 @@ from gitlab import Gitlab
 class IssueItem:  # pylint: disable=too-many-instance-attributes
     """Dataclass holding a single issue"""
 
-    assignee_user: str = ""
+    assignee_users: list = field(default_factory=list)
     due_date: str = ""
     epic_title: str = ""
     milestone_title: str = ""
@@ -28,17 +28,31 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
             setattr(self, attr, value)
 
 
+def _sort_assignees(assignees: list, my_user_name: str) -> str:
+    """Provide a human-readable list of assigned users, treating yourself special"""
+
+    assignees.remove(my_user_name)
+
+    # If executing user is the only assignee, there is no use in that field
+    if not assignees:
+        return ""
+
+    return f"{', '.join(['Me'] + assignees)}"
+
+
 def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
     """Get all issues assigned to authenticated user"""
     issues: list[IssueItem] = []
+    myuser: str = gitlab.user.username  # type: ignore
     for issue in gitlab.issues.list(
-        assignee_username=gitlab.user.username, state="opened", scope="all"  # type: ignore
+        assignee_username=myuser, state="opened", scope="all"  # type: ignore
     ):
         # See https://docs.gitlab.com/ee/api/issues.html
         d = IssueItem()
         d.import_values(
-            # TODO: get all assignees, filter out oneself
-            assignee_user=issue.assignee["username"] if issue.assignee else "",
+            assignee_users=_sort_assignees(
+                [u["username"] for u in issue.assignees if issue.assignees], myuser
+            ),
             due_date=issue.due_date,
             epic_title=issue.epic["title"] if issue.epic else "",
             milestone_title=issue.milestone["title"] if issue.milestone else "",
@@ -62,11 +76,14 @@ def _gh_url_to_ref(url: str):
 def github_get_issues(github: Github) -> list[IssueItem]:
     """Get all issues assigned to authenticated user"""
     issues: list[IssueItem] = []
-    for issue in github.get_user().get_issues():  # type: ignore
+    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()  # type: ignore
+    for issue in myuser.get_issues():
         # See https://docs.github.com/en/rest/issues/issues
         d = IssueItem()
         d.import_values(
-            assignee_user=issue.assignee.login if issue.assignee else "",
+            assignee_users=_sort_assignees(
+                [u.login for u in issue.assignees if issue.assignees], myuser.login
+            ),
             due_date="",
             epic_title="",
             milestone_title=issue.milestone.title if issue.milestone else "",
@@ -97,10 +114,10 @@ def get_all_issues() -> list[IssueItem]:
 def _replace_none_with_empty_string(obj: IssueItem) -> IssueItem:
     """Replace None values of a dataclass with an empty string. Makes sorting
     easier"""
-    for field in fields(obj):
-        value = getattr(obj, field.name)
+    for f in fields(obj):
+        value = getattr(obj, f.name)
         if value is None:
-            setattr(obj, field.name, "")
+            setattr(obj, f.name, "")
 
     return obj
 
@@ -129,8 +146,8 @@ def prioritize_issues(
     def sort_key(issue: IssueItem) -> tuple:
         # Create a tuple of the field values to sort by, considering the reverse order
         key: list[tuple[int, str | None]] = []
-        for field, reverse in sort_by:
-            value: str = getattr(issue, field).lower()
+        for f, reverse in sort_by:
+            value: str = getattr(issue, f).lower()
             is_empty = value == ""
             # Place empty values at the end
             if is_empty:
