@@ -18,6 +18,7 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
     epic_title: str = ""
     milestone_title: str = ""
     ref: str = ""
+    pull: bool = False
     title: str = ""
     web_url: str = ""
     service: str = ""
@@ -31,7 +32,11 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
 def _sort_assignees(assignees: list, my_user_name: str) -> str:
     """Provide a human-readable list of assigned users, treating yourself special"""
 
-    assignees.remove(my_user_name)
+    # Remove my user name from assignees list, if present
+    try:
+        assignees.remove(my_user_name)
+    except ValueError:
+        pass
 
     # If executing user is the only assignee, there is no use in that field
     if not assignees:
@@ -70,15 +75,29 @@ def _gh_url_to_ref(url: str):
     """Convert a GitHub issue URL to a ref"""
     url = urlparse(url).path
     url = url.strip("/")
-    return url.replace("/issues/", "#")
+
+    # Run replacements
+    replacements = {"/issues/": "#", "/pull/": "#"}
+    for search, replacement in replacements.items():
+        url = url.replace(search, replacement)
+
+    return url
 
 
 def github_get_issues(github: Github) -> list[IssueItem]:
     """Get all issues assigned to authenticated user"""
     issues: list[IssueItem] = []
     myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()  # type: ignore
-    for issue in myuser.get_issues():
-        # See https://docs.github.com/en/rest/issues/issues
+
+    # See https://docs.github.com/en/rest/issues/issues
+    assigned_issues = myuser.get_issues()
+    # See https://docs.github.com/en/rest/search/search
+    reviews_requests = github.search_issues(
+        query=f"is:open is:pr archived:false review-requested:{myuser.login}"
+    )
+
+    for issue in list(assigned_issues) + list(reviews_requests):
+
         d = IssueItem()
         d.import_values(
             assignee_users=_sort_assignees(
@@ -90,6 +109,7 @@ def github_get_issues(github: Github) -> list[IssueItem]:
             ref=_gh_url_to_ref(issue.html_url),
             title=issue.title,
             web_url=issue.html_url,
+            pull=issue.pull_request is not None,
             service="github",
         )
         issues.append(d)
