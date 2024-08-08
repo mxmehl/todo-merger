@@ -5,6 +5,13 @@
   My assigned issues and pull request reviews
 </h1>
 
+<p>
+  <strong>Overview</strong>:
+  {{ stats.total }} items, {{ stats.issues }} issues and {{ stats.pulls }} PRs/MRs.
+  {{ stats.gitlab }} from GitLab, {{ stats.github }} from GitHub.
+  {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
+</p>
+
 {%- for issue in issues %}
 <div class="issue">
   {# First line: Title and Service #}

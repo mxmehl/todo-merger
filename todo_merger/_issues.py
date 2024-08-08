@@ -30,6 +30,20 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
             setattr(self, attr, value)
 
 
+@dataclass
+class IssuesStats:  # pylint: disable=too-many-instance-attributes
+    """Dataclass holding a stats about all issues"""
+
+    total: int = 0
+    gitlab: int = 0
+    github: int = 0
+    pulls: int = 0
+    issues: int = 0
+    due_dates_total: int = 0
+    milestones_total: int = 0
+    epics_total: int = 0
+
+
 # HELPER FUNCTIONS
 
 
@@ -223,3 +237,28 @@ def prioritize_issues(
         return tuple(key)
 
     return sorted(issues, key=sort_key)
+
+
+# STATS ABOUT FETCHED ISSUES
+
+
+def get_issues_stats(issues: list[IssueItem]) -> IssuesStats:
+    """Create some stats about the collected issues"""
+    stats = IssuesStats()
+
+    for issue in issues:
+        # Total issues
+        stats.total += 1
+        # Services total
+        setattr(stats, issue.service, getattr(stats, issue.service) + 1)
+        # Issue/PR counter
+        if issue.pull:
+            stats.pulls += 1
+        else:
+            stats.issues += 1
+        # Number of due dates, milestones, and epics
+        stats.due_dates_total += 1 if issue.due_date else 0
+        stats.milestones_total += 1 if issue.milestone_title else 0
+        stats.epics_total += 1 if issue.epic_title else 0
+
+    return stats
