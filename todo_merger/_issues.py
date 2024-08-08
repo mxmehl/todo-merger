@@ -5,8 +5,9 @@ from dataclasses import dataclass, field, fields
 from urllib.parse import urlparse
 
 from flask import current_app
-from github import AuthenticatedUser, Github
+from github import AuthenticatedUser, Github, Issue, PaginatedList
 from gitlab import Gitlab
+from gitlab.base import RESTObject, RESTObjectList
 
 
 @dataclass
@@ -29,6 +30,9 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
             setattr(self, attr, value)
 
 
+# HELPER FUNCTIONS
+
+
 def _sort_assignees(assignees: list, my_user_name: str) -> str:
     """Provide a human-readable list of assigned users, treating yourself special"""
 
@@ -45,32 +49,6 @@ def _sort_assignees(assignees: list, my_user_name: str) -> str:
     return f"{', '.join(['Me'] + assignees)}"
 
 
-def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
-    """Get all issues assigned to authenticated user"""
-    issues: list[IssueItem] = []
-    myuser: str = gitlab.user.username  # type: ignore
-    for issue in gitlab.issues.list(
-        assignee_username=myuser, state="opened", scope="all"  # type: ignore
-    ):
-        # See https://docs.gitlab.com/ee/api/issues.html
-        d = IssueItem()
-        d.import_values(
-            assignee_users=_sort_assignees(
-                [u["username"] for u in issue.assignees if issue.assignees], myuser
-            ),
-            due_date=issue.due_date,
-            epic_title=issue.epic["title"] if issue.epic else "",
-            milestone_title=issue.milestone["title"] if issue.milestone else "",
-            ref=issue.references["full"],
-            title=issue.title,
-            web_url=issue.web_url,
-            service="gitlab",
-        )
-        issues.append(d)
-
-    return issues
-
-
 def _gh_url_to_ref(url: str):
     """Convert a GitHub issue URL to a ref"""
     url = urlparse(url).path
@@ -84,24 +62,57 @@ def _gh_url_to_ref(url: str):
     return url
 
 
-def github_get_issues(github: Github) -> list[IssueItem]:
-    """Get all issues assigned to authenticated user"""
-    issues: list[IssueItem] = []
-    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()  # type: ignore
+def _replace_none_with_empty_string(obj: IssueItem) -> IssueItem:
+    """Replace None values of a dataclass with an empty string. Makes sorting
+    easier"""
+    for f in fields(obj):
+        value = getattr(obj, f.name)
+        if value is None:
+            setattr(obj, f.name, "")
 
-    # See https://docs.github.com/en/rest/issues/issues
-    assigned_issues = myuser.get_issues()
-    # See https://docs.github.com/en/rest/search/search
-    reviews_requests = github.search_issues(
-        query=f"is:open is:pr archived:false review-requested:{myuser.login}"
-    )
+    return obj
 
-    for issue in list(assigned_issues) + list(reviews_requests):
 
+# API TO IssueItem DATACLASS
+
+
+def _import_gitlab_issues(
+    issues: RESTObjectList | list[RESTObject], myuser: str
+) -> list[IssueItem]:
+    """Create a list of IssueItem from the GitLab API results"""
+    issueitems: list[IssueItem] = []
+    for issue in issues:
         d = IssueItem()
         d.import_values(
             assignee_users=_sort_assignees(
-                [u.login for u in issue.assignees if issue.assignees], myuser.login
+                [u["username"] for u in issue.assignees if issue.assignees], myuser
+            ),
+            due_date=issue.due_date if hasattr(issue, "due_date") else "",
+            epic_title=(
+                issue.epic["title"] if hasattr(issue, "epic") and issue.epic is not None else ""
+            ),
+            milestone_title=issue.milestone["title"] if issue.milestone else "",
+            ref=issue.references["full"],
+            title=issue.title,
+            web_url=issue.web_url,
+            pull=hasattr(issue, "merge_status"),
+            service="gitlab",
+        )
+        issueitems.append(d)
+
+    return issueitems
+
+
+def _import_github_issues(
+    issues: PaginatedList.PaginatedList[Issue.Issue], myuser: str
+) -> list[IssueItem]:
+    """Create a list of IssueItem from the GitHub API results"""
+    issueitems: list[IssueItem] = []
+    for issue in issues:
+        d = IssueItem()
+        d.import_values(
+            assignee_users=_sort_assignees(
+                [u.login for u in issue.assignees if issue.assignees], myuser
             ),
             due_date="",
             epic_title="",
@@ -112,7 +123,48 @@ def github_get_issues(github: Github) -> list[IssueItem]:
             pull=issue.pull_request is not None,
             service="github",
         )
-        issues.append(d)
+        issueitems.append(d)
+
+    return issueitems
+
+
+# GET ISSUES FROM SERVICES
+
+
+def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
+    """Get all issues assigned to authenticated user"""
+    issues: list[IssueItem] = []
+    myuser: str = gitlab.user.username  # type: ignore
+
+    # See https://docs.gitlab.com/ee/api/issues.html
+    assigned_issues = gitlab.issues.list(
+        assignee_username=myuser, state="opened", scope="all"  # type: ignore
+    )
+    # See https://docs.github.com/en/rest/search/search
+    review_requests = gitlab.mergerequests.list(
+        reviewer_username=myuser, state="opened", scope="all"
+    )
+
+    issues.extend(_import_gitlab_issues(issues=assigned_issues, myuser=myuser))
+    issues.extend(_import_gitlab_issues(issues=review_requests, myuser=myuser))
+
+    return issues
+
+
+def github_get_issues(github: Github) -> list[IssueItem]:
+    """Get all issues assigned to authenticated user"""
+    issues: list[IssueItem] = []
+    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()  # type: ignore
+
+    # See https://docs.github.com/en/rest/issues/issues
+    assigned_issues = myuser.get_issues()
+    # See https://docs.github.com/en/rest/search/search
+    review_requests = github.search_issues(
+        query=f"is:open is:pr archived:false review-requested:{myuser.login}"
+    )
+
+    issues.extend(_import_github_issues(issues=assigned_issues, myuser=myuser.login))
+    issues.extend(_import_github_issues(issues=review_requests, myuser=myuser.login))
 
     return issues
 
@@ -131,15 +183,7 @@ def get_all_issues() -> list[IssueItem]:
     return issues
 
 
-def _replace_none_with_empty_string(obj: IssueItem) -> IssueItem:
-    """Replace None values of a dataclass with an empty string. Makes sorting
-    easier"""
-    for f in fields(obj):
-        value = getattr(obj, f.name)
-        if value is None:
-            setattr(obj, f.name, "")
-
-    return obj
+# ISSUE PRIORIZATION
 
 
 def prioritize_issues(
