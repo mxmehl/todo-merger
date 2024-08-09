@@ -9,7 +9,7 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def index():
-    """Index"""
+    """Index Page"""
 
     issues = get_all_issues()
     issues = prioritize_issues(issues)
