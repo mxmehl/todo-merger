@@ -2,13 +2,27 @@
 
 {% block content %}
 <h1 class="title">
-  Issues Assigned to me
+  My assigned issues and pull request reviews
 </h1>
+
+<p>
+  <strong>Overview</strong>:
+  {{ stats.total }} items, {{ stats.issues }} issues and {{ stats.pulls }} PRs/MRs.
+  {{ stats.gitlab }} from GitLab, {{ stats.github }} from GitHub.
+  {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
+</p>
 
 {%- for issue in issues %}
 <div class="issue">
-  {# First line: Title and Service #}
+  {# First line: Icon, Title and Service #}
   <div class="title">
+    <span class="icon">
+      {%- if issue.pull %}
+      <i title="Pull / Merge Request" class="fa-solid fa-code-pull-request"></i>
+      {%- else %}
+      <i title="Issue" class="fa-regular fa-circle-dot"></i>
+      {%- endif %}
+    </span>
     {{- issue.title }}
     {%- if issue.service == "gitlab" %}
     <i class="fa-brands fa-square-gitlab" title="GitLab"></i>
@@ -35,6 +49,7 @@
     {% if issue.assignee_users %}
     <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_users }}</span>
     {% endif %}
+    <span title="Updated at"><i class="fa-regular fa-clock"></i> {{ issue.updated_at_display }}</span>
     {% if issue.web_url %}
     <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
     {% endif %}
