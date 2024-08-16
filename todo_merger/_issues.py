@@ -208,8 +208,9 @@ def _import_github_issues(
             ref=_gh_url_to_ref(issue.html_url),
             title=issue.title,
             web_url=issue.html_url,
-            # TODO: issue.pull_request requires an extra GET call, slowing us down
-            pull=issue.pull_request is not None,
+            # Ugly fix to make loading faster. `issue.pull_request` would
+            # trigger another API call
+            pull="/pull/" in issue.html_url,
             service="github",
         )
         d.fill_remaining_fields()
