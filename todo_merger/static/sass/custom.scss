@@ -6,39 +6,42 @@
 
   .rank {
     align-content: center;
-    color: #666;
 
-    @media (prefers-color-scheme: light) {
-      color: #bbb;
-    }
+    a {
+      color: #666;
 
-    .pin {
-      &:hover {
-        color: deepskyblue;
+      @media (prefers-color-scheme: light) {
+        color: #bbb;
       }
 
-      &.enabled {
-        color: deepskyblue;
-      }
-    }
+      &.pin {
+        &:hover {
+          color: deepskyblue;
+        }
 
-    .high {
-      &:hover {
-        color: green;
-      }
-
-      &.enabled {
-        color: green;
-      }
-    }
-
-    .low {
-      &:hover {
-        color: red;
+        &.enabled {
+          color: deepskyblue;
+        }
       }
 
-      &.enabled {
-        color: red;
+      &.high {
+        &:hover {
+          color: green;
+        }
+
+        &.enabled {
+          color: green;
+        }
+      }
+
+      &.low {
+        &:hover {
+          color: red;
+        }
+
+        &.enabled {
+          color: red;
+        }
       }
     }
   }

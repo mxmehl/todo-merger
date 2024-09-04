@@ -12,7 +12,7 @@ from github import AuthenticatedUser, Github, Issue, PaginatedList
 from gitlab import Gitlab
 from gitlab.base import RESTObject, RESTObjectList
 
-DEFAULT_ISSUE_RANK = 5
+ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 
 
 @dataclass
@@ -31,7 +31,7 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
     title: str = ""
     web_url: str = ""
     service: str = ""
-    rank: int = DEFAULT_ISSUE_RANK
+    rank: int = ISSUE_RANKING_TABLE["normal"]
 
     def import_values(self, **kwargs):
         """Import data from a dict"""

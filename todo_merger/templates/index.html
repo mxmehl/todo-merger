@@ -15,9 +15,10 @@
 {%- for issue in issues|sort(attribute="rank") %}
 <div class="issue" id="{{ issue.uid }}">
   <div class="rank">
-    <i class="fa-solid fa-thumbtack pin {% if issue.rank == -1 %}enabled{% endif %}"></i>
-    <i class="fa-solid fa-up-long high {% if issue.rank == 1 %}enabled{% endif %}"></i>
-    <i class="fa-solid fa-down-long low {% if issue.rank == 99 %}enabled{% endif %}"></i>
+    <!-- Rank: {{ issue.rank }} -->
+    <a href="/ranking?issue={{ issue.uid }}&rank=pin" class="pin {% if issue.rank == -1 %}enabled{% endif %}"><i class="fa-solid fa-thumbtack"></i></a>
+    <a href="/ranking?issue={{ issue.uid }}&rank=high" class="high {% if issue.rank == 1 %}enabled{% endif %}"><i class="fa-solid fa-up-long"></i></a>
+    <a href="/ranking?issue={{ issue.uid }}&rank=low" class="low {% if issue.rank == 99 %}enabled{% endif %}"><i class="fa-solid fa-down-long"></i></a>
   </div>
   <div>
     {# First line: Icon, Title and Service #}
