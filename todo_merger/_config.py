@@ -1,5 +1,6 @@
 """App config file handling"""
 
+import json
 import logging
 import sys
 from os import makedirs
@@ -69,3 +70,42 @@ def get_app_config(config_file: str, key: str = ""):
         return _read_app_config_file(config_file)[key]
 
     return _read_app_config_file(config_file)
+
+
+def read_issues_config() -> dict:
+    """Return the issues configuration"""
+
+    config_file = join(user_config_dir("todo-merger", ensure_exists=True), "issues-config.json")
+
+    logging.debug("Reading issues configuration file %s", config_file)
+    try:
+        with open(config_file, mode="r", encoding="UTF-8") as jsonfile:
+            return json.load(jsonfile)
+
+    except json.decoder.JSONDecodeError:
+        logging.error(
+            "Cannot read JSON file %s. Please check its syntax or delete it. "
+            "Will ignore any issues configuration.",
+            config_file,
+        )
+        return {}
+
+    except FileNotFoundError:
+        logging.debug(
+            "Issues configuration file '%s' has not been found. Initializing a new empty one.",
+            config_file,
+        )
+        default_issues_config: dict = {}
+        write_issues_config(issues_config=default_issues_config)
+
+        return default_issues_config
+
+
+def write_issues_config(issues_config: dict) -> None:
+    """Write issues configuration file"""
+
+    config_file = join(user_config_dir("todo-merger", ensure_exists=True), "issues-config.json")
+
+    logging.debug("Writing issues configuration file %s", config_file)
+    with open(config_file, mode="w", encoding="UTF-8") as jsonfile:
+        json.dump(issues_config, jsonfile)

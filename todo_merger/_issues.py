@@ -1,5 +1,6 @@
 """Handling issues which come in from different sources"""
 
+import hashlib
 import logging
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
@@ -11,11 +12,14 @@ from github import AuthenticatedUser, Github, Issue, PaginatedList
 from gitlab import Gitlab
 from gitlab.base import RESTObject, RESTObjectList
 
+ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
+
 
 @dataclass
 class IssueItem:  # pylint: disable=too-many-instance-attributes
     """Dataclass holding a single issue"""
 
+    uid: str = ""
     updated_at: datetime = field(default_factory=datetime.now)
     updated_at_display: str = ""
     assignee_users: list = field(default_factory=list)
@@ -27,11 +31,18 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
     title: str = ""
     web_url: str = ""
     service: str = ""
+    rank: int = ISSUE_RANKING_TABLE["normal"]
 
     def import_values(self, **kwargs):
         """Import data from a dict"""
         for attr, value in kwargs.items():
             setattr(self, attr, value)
+
+    def fill_remaining_fields(self):
+        """Fill remaining fields that have not been imported directly and which
+        are solely derived from attribute values"""
+        # updated_at_display
+        self.updated_at_display = _time_ago(_convert_to_datetime(self.updated_at))
 
 
 @dataclass
@@ -152,15 +163,15 @@ def _time_ago(dt):
 
 
 def _import_gitlab_issues(
-    issues: RESTObjectList | list[RESTObject], myuser: str
+    issues: RESTObjectList | list[RESTObject], myuser: str, instance_id: str
 ) -> list[IssueItem]:
     """Create a list of IssueItem from the GitLab API results"""
     issueitems: list[IssueItem] = []
     for issue in issues:
         d = IssueItem()
         d.import_values(
+            uid=f"gitlab-{instance_id}-{issue.id}",
             updated_at=_convert_to_datetime(issue.updated_at),
-            updated_at_display=_time_ago(_convert_to_datetime(issue.updated_at)),
             assignee_users=_sort_assignees(
                 [u["username"] for u in issue.assignees if issue.assignees], myuser
             ),
@@ -175,6 +186,7 @@ def _import_gitlab_issues(
             pull=hasattr(issue, "merge_status"),
             service="gitlab",
         )
+        d.fill_remaining_fields()
         issueitems.append(d)
 
     return issueitems
@@ -188,8 +200,8 @@ def _import_github_issues(
     for issue in issues:
         d = IssueItem()
         d.import_values(
+            uid=f"github-{issue.id}",
             updated_at=_convert_to_datetime(issue.updated_at),
-            updated_at_display=_time_ago(_convert_to_datetime(issue.updated_at)),
             assignee_users=_sort_assignees(
                 [u.login for u in issue.assignees if issue.assignees], myuser
             ),
@@ -199,9 +211,12 @@ def _import_github_issues(
             ref=_gh_url_to_ref(issue.html_url),
             title=issue.title,
             web_url=issue.html_url,
-            pull=issue.pull_request is not None,
+            # Ugly fix to make loading faster. `issue.pull_request` would
+            # trigger another API call
+            pull="/pull/" in issue.html_url,
             service="github",
         )
+        d.fill_remaining_fields()
         issueitems.append(d)
 
     return issueitems
@@ -214,18 +229,25 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
     """Get all issues assigned to authenticated user"""
     issues: list[IssueItem] = []
     myuser: str = gitlab.user.username  # type: ignore
+    # Create a unique enough id for the GitLab instance in case we have more
+    # than one. Avoids issue id collisions
+    instance_id = hashlib.md5(gitlab.url.encode()).hexdigest()[:6]
 
     # See https://docs.gitlab.com/ee/api/issues.html
     assigned_issues = gitlab.issues.list(
         assignee_username=myuser, state="opened", scope="all"  # type: ignore
     )
-    # See https://docs.github.com/en/rest/search/search
+    # See https://docs.gitlab.com/ee/api/merge_requests.html
     review_requests = gitlab.mergerequests.list(
         reviewer_username=myuser, state="opened", scope="all"
     )
 
-    issues.extend(_import_gitlab_issues(issues=assigned_issues, myuser=myuser))
-    issues.extend(_import_gitlab_issues(issues=review_requests, myuser=myuser))
+    issues.extend(
+        _import_gitlab_issues(issues=assigned_issues, myuser=myuser, instance_id=instance_id)
+    )
+    issues.extend(
+        _import_gitlab_issues(issues=review_requests, myuser=myuser, instance_id=instance_id)
+    )
 
     return issues
 
@@ -314,6 +336,18 @@ def prioritize_issues(
         return tuple(key)
 
     return sorted(issues, key=sort_key)
+
+
+def apply_user_issue_ranking(
+    issues: list[IssueItem], ranking_dict: dict[str, int]
+) -> list[IssueItem]:
+    """Rank list of issues based on user configuration"""
+    for issue in issues:
+        if issue.uid in ranking_dict:
+            issue.rank = ranking_dict[issue.uid]
+            logging.debug("Apply rank %s to issue %s (%s)", issue.rank, issue.uid, issue.title)
+
+    return issues
 
 
 # STATS ABOUT FETCHED ISSUES

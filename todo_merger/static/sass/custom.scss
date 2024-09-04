@@ -1,5 +1,50 @@
 .issue {
   padding: 10px 0 10px 0;
+  display: flex;
+  flex-wrap: nowrap;
+  column-gap: 10px;
+
+  .rank {
+    align-content: center;
+
+    a {
+      color: #666;
+
+      @media (prefers-color-scheme: light) {
+        color: #bbb;
+      }
+
+      &.pin {
+        &:hover {
+          color: deepskyblue;
+        }
+
+        &.enabled {
+          color: deepskyblue;
+        }
+      }
+
+      &.high {
+        &:hover {
+          color: green;
+        }
+
+        &.enabled {
+          color: green;
+        }
+      }
+
+      &.low {
+        &:hover {
+          color: red;
+        }
+
+        &.enabled {
+          color: red;
+        }
+      }
+    }
+  }
 
   .title {
     font-weight: 700;
@@ -8,6 +53,7 @@
       margin-right: 5px;
     }
   }
+
   .metadata {
     font-size: smaller;
 
