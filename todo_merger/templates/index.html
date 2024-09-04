@@ -12,47 +12,54 @@
   {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
 </p>
 
-{%- for issue in issues %}
+{%- for issue in issues|sort(attribute="rank") %}
 <div class="issue" id="{{ issue.uid }}">
-  {# First line: Icon, Title and Service #}
-  <div class="title">
-    <span class="icon">
-      {%- if issue.pull %}
-      <i title="Pull / Merge Request" class="fa-solid fa-code-pull-request"></i>
-      {%- else %}
-      <i title="Issue" class="fa-regular fa-circle-dot"></i>
-      {%- endif %}
-    </span>
-    {{- issue.title }}
-    {%- if issue.service == "gitlab" %}
-    <i class="fa-brands fa-square-gitlab" title="GitLab"></i>
-    {%- elif issue.service == "github" %}
-    <i class="fa-brands fa-square-github" title="GitHub"></i>
-    {%- elif issue.service == "todo" %}
-    <i class="fa-solid fa-arrow-up-right-from-square" title="To Do"></i>
-    {%- endif %}
+  <div class="rank">
+    <i class="fa-solid fa-thumbtack pin {% if issue.rank == -1 %}enabled{% endif %}"></i>
+    <i class="fa-solid fa-up-long high {% if issue.rank == 1 %}enabled{% endif %}"></i>
+    <i class="fa-solid fa-down-long low {% if issue.rank == 99 %}enabled{% endif %}"></i>
   </div>
-  <div class="metadata">
-    {% if issue.ref %}
-    <span title="Reference"><i class="fa-solid fa-map"></i> {{ issue.ref }}</span>
-    {% endif %}
-    {% if issue.due_date %}
-    <span title="Due date"><i class="fa-regular fa-calendar"></i> {{ issue.due_date }}</span>
-    {% endif %}
-    {% if issue.milestone_title %}
-    <span title="Milestone"><i class="fa-regular fa-circle-dot"></i> {{ issue.milestone_title }}
-    </span>
-    {% endif %}
-    {% if issue.epic_title %}
-    <span title="Epic"><i class="fa-regular fa-circle-dot"></i> {{ issue.epic_title }}</span>
-    {% endif %}
-    {% if issue.assignee_users %}
-    <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_users }}</span>
-    {% endif %}
-    <span title="Updated at {{ issue.updated_at }}"><i class="fa-regular fa-clock"></i> {{ issue.updated_at_display }}</span>
-    {% if issue.web_url %}
-    <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
-    {% endif %}
+  <div>
+    {# First line: Icon, Title and Service #}
+    <div class="title">
+      <span class="icon">
+        {%- if issue.pull %}
+        <i title="Pull / Merge Request" class="fa-solid fa-code-pull-request"></i>
+        {%- else %}
+        <i title="Issue" class="fa-regular fa-circle-dot"></i>
+        {%- endif %}
+      </span>
+      {{- issue.title }}
+      {%- if issue.service == "gitlab" %}
+      <i class="fa-brands fa-square-gitlab" title="GitLab"></i>
+      {%- elif issue.service == "github" %}
+      <i class="fa-brands fa-square-github" title="GitHub"></i>
+      {%- elif issue.service == "todo" %}
+      <i class="fa-solid fa-arrow-up-right-from-square" title="To Do"></i>
+      {%- endif %}
+    </div>
+    <div class="metadata">
+      {% if issue.ref %}
+      <span title="Reference"><i class="fa-solid fa-map"></i> {{ issue.ref }}</span>
+      {% endif %}
+      {% if issue.due_date %}
+      <span title="Due date"><i class="fa-regular fa-calendar"></i> {{ issue.due_date }}</span>
+      {% endif %}
+      {% if issue.milestone_title %}
+      <span title="Milestone"><i class="fa-regular fa-circle-dot"></i> {{ issue.milestone_title }}
+      </span>
+      {% endif %}
+      {% if issue.epic_title %}
+      <span title="Epic"><i class="fa-regular fa-circle-dot"></i> {{ issue.epic_title }}</span>
+      {% endif %}
+      {% if issue.assignee_users %}
+      <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_users }}</span>
+      {% endif %}
+      <span title="Updated at {{ issue.updated_at }}"><i class="fa-regular fa-clock"></i> {{ issue.updated_at_display }}</span>
+      {% if issue.web_url %}
+      <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
+      {% endif %}
+    </div>
   </div>
 </div>
 {%- endfor %}

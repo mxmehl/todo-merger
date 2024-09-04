@@ -12,6 +12,8 @@ from github import AuthenticatedUser, Github, Issue, PaginatedList
 from gitlab import Gitlab
 from gitlab.base import RESTObject, RESTObjectList
 
+DEFAULT_ISSUE_RANK = 5
+
 
 @dataclass
 class IssueItem:  # pylint: disable=too-many-instance-attributes
@@ -29,6 +31,7 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
     title: str = ""
     web_url: str = ""
     service: str = ""
+    rank: int = DEFAULT_ISSUE_RANK
 
     def import_values(self, **kwargs):
         """Import data from a dict"""
@@ -333,6 +336,18 @@ def prioritize_issues(
         return tuple(key)
 
     return sorted(issues, key=sort_key)
+
+
+def apply_user_issue_ranking(
+    issues: list[IssueItem], ranking_dict: dict[str, int]
+) -> list[IssueItem]:
+    """Rank list of issues based on user configuration"""
+    for issue in issues:
+        if issue.uid in ranking_dict:
+            issue.rank = ranking_dict[issue.uid]
+            logging.debug("Apply rank %s to issue %s (%s)", issue.rank, issue.uid, issue.title)
+
+    return issues
 
 
 # STATS ABOUT FETCHED ISSUES
