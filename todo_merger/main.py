@@ -1,7 +1,10 @@
 """Main"""
 
-from flask import Blueprint, redirect, render_template, request
+from datetime import datetime
 
+from flask import Blueprint, current_app, redirect, render_template, request
+
+from ._cache import get_cache_status
 from ._views import get_issues_and_stats, set_ranking
 
 main = Blueprint("main", __name__)
@@ -11,7 +14,13 @@ main = Blueprint("main", __name__)
 def index():
     """Index Page"""
 
-    issues, stats = get_issues_and_stats(cache=False)
+    # Find out whether current cache timer is still valid
+    cache = get_cache_status(current_app.config["cache_timer"])
+    # Reset cache timer to now
+    if not cache:
+        current_app.config["cache_timer"] = datetime.now()
+
+    issues, stats = get_issues_and_stats(cache=cache)
 
     return render_template("index.html", issues=issues, stats=stats)
 

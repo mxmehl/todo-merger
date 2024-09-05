@@ -2,6 +2,7 @@
 
 import json
 import logging
+from datetime import datetime, timedelta
 from os.path import join
 
 from platformdirs import user_cache_dir
@@ -54,3 +55,23 @@ def write_issues_cache(issues: list[IssueItem]) -> None:
     logging.debug("Writing issues cache file %s", cache_file)
     with open(cache_file, mode="w", encoding="UTF-8") as jsonfile:
         json.dump(issues_cache, jsonfile, indent=2, default=str)
+
+
+def get_cache_status(cache_timer: None | datetime) -> bool:
+    """Find out whether the cache is still valid. Returns False if it must be
+    refreshed"""
+
+    if cache_timer is None:
+        logging.debug("No cache timer set before")
+        return False
+
+    # Get difference between now and start of cache timer
+    cache_diff = datetime.now() - cache_timer
+    logging.debug("Current cache time difference: %s", cache_diff)
+    if cache_diff > timedelta(minutes=1):
+        logging.info("Cache older than defined. Requesting all issues anew")
+        # Mark that cache shall be disregarded
+        return False
+
+    logging.debug("Cache is still considered to be valid")
+    return True

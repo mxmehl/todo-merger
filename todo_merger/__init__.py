@@ -156,6 +156,9 @@ def create_app(config_file: str):
     for name, service in load_app_config(config_file).items():
         app.config["services"][name] = service
 
+    # Initiate cache timer
+    app.config["cache_timer"] = None
+
     # blueprint for app
     from .main import main as main_blueprint  # pylint: disable=import-error
 

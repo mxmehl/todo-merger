@@ -1,4 +1,4 @@
-"""View functions"""
+"""View functions, removing complexity from main.py"""
 
 import logging
 
