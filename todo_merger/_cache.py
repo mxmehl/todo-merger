@@ -57,7 +57,7 @@ def write_issues_cache(issues: list[IssueItem]) -> None:
         json.dump(issues_cache, jsonfile, indent=2, default=str)
 
 
-def get_cache_status(cache_timer: None | datetime) -> bool:
+def get_cache_status(cache_timer: None | datetime, timeout_seconds: int) -> bool:
     """Find out whether the cache is still valid. Returns False if it must be
     refreshed"""
 
@@ -68,7 +68,7 @@ def get_cache_status(cache_timer: None | datetime) -> bool:
     # Get difference between now and start of cache timer
     cache_diff = datetime.now() - cache_timer
     logging.debug("Current cache time difference: %s", cache_diff)
-    if cache_diff > timedelta(minutes=1):
+    if cache_diff > timedelta(seconds=timeout_seconds):
         logging.info("Cache older than defined. Requesting all issues anew")
         # Mark that cache shall be disregarded
         return False

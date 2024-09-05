@@ -15,7 +15,10 @@ def index():
     """Index Page"""
 
     # Find out whether current cache timer is still valid
-    cache = get_cache_status(current_app.config["cache_timer"])
+    cache = get_cache_status(
+        cache_timer=current_app.config["cache_timer"],
+        timeout_seconds=current_app.config["cache_timeout_seconds"],
+    )
     # Reset cache timer to now
     if not cache:
         current_app.config["cache_timer"] = datetime.now()
