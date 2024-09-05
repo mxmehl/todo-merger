@@ -11,11 +11,14 @@ from platformdirs import user_config_dir
 
 DEFAULT_APP_CONFIG = """# App configuration for ToDo Merger
 
-[github-com]
+[cache]
+timeout_seconds = 600
+
+[services.github-com]
 service = "github"
 token = ""
 
-[gitlab-com]
+[services.gitlab-com]
 service = "gitlab"
 token = ""
 url = "https://gitlab.com"

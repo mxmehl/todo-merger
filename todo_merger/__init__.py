@@ -82,9 +82,11 @@ def configure_logger(args) -> logging.Logger:
     return log
 
 
-def load_app_config(config_file: str) -> dict[str, tuple[str, Github | Gitlab]]:
+def load_app_services_config(
+    config_file: str, section: str = "services"
+) -> dict[str, tuple[str, Github | Gitlab]]:
     """Load the app config, handle service logins, and return objects"""
-    app_config: dict[str, dict[str, str]] = get_app_config(config_file)
+    app_config: dict[str, dict[str, str]] = get_app_config(config_file, section)
     service_objects: dict[str, tuple[str, Github | Gitlab]] = {}
 
     for name, cfg in app_config.items():
@@ -153,8 +155,14 @@ def create_app(config_file: str):
 
     # Load app config and login to services (e.g. GitHub and GitLab)
     app.config["services"] = {}
-    for name, service in load_app_config(config_file).items():
+    for name, service in load_app_services_config(config_file).items():
         app.config["services"][name] = service
+
+    # Initiate cache timer
+    app.config["current_cache_timer"] = None
+    app.config["cache_timeout_seconds"] = get_app_config(config_file, "cache").get(
+        "timeout_seconds", 600
+    )
 
     # blueprint for app
     from .main import main as main_blueprint  # pylint: disable=import-error
