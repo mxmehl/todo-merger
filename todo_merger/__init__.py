@@ -159,7 +159,7 @@ def create_app(config_file: str):
         app.config["services"][name] = service
 
     # Initiate cache timer
-    app.config["cache_timer"] = None
+    app.config["current_cache_timer"] = None
     app.config["cache_timeout_seconds"] = get_app_config(config_file, "cache").get(
         "timeout_seconds", 600
     )

@@ -16,12 +16,12 @@ def index():
 
     # Find out whether current cache timer is still valid
     cache = get_cache_status(
-        cache_timer=current_app.config["cache_timer"],
+        cache_timer=current_app.config["current_cache_timer"],
         timeout_seconds=current_app.config["cache_timeout_seconds"],
     )
     # Reset cache timer to now
     if not cache:
-        current_app.config["cache_timer"] = datetime.now()
+        current_app.config["current_cache_timer"] = datetime.now()
 
     issues, stats = get_issues_and_stats(cache=cache)
 
@@ -36,5 +36,14 @@ def ranking():
     rank_new = request.args.get("rank", "")
 
     set_ranking(issue=issue, rank=rank_new)
+
+    return redirect("/")
+
+
+@main.route("/reload", methods=["GET"])
+def reload():
+    """Reload all issues and break cache"""
+
+    current_app.config["current_cache_timer"] = None
 
     return redirect("/")

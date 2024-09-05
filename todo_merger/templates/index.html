@@ -10,6 +10,12 @@
   {{ stats.total }} items, {{ stats.issues }} issues and {{ stats.pulls }} PRs/MRs.
   {{ stats.gitlab }} from GitLab, {{ stats.github }} from GitHub.
   {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
+  <br />
+  <a href="/reload">
+    <button class="secondary" id="refresh-button">
+      <i class="fa-solid fa-rotate-right"></i> Reload all issues
+    </button>
+  </a>
 </p>
 
 {%- for issue in issues|sort(attribute="rank") %}

@@ -62,7 +62,7 @@ def get_cache_status(cache_timer: None | datetime, timeout_seconds: int) -> bool
     refreshed"""
 
     if cache_timer is None:
-        logging.debug("No cache timer set before")
+        logging.debug("No cache timer set before, or manually refreshed")
         return False
 
     # Get difference between now and start of cache timer
