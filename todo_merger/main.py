@@ -2,7 +2,7 @@
 
 from flask import Blueprint, redirect, render_template, request
 
-from ._views import set_ranking, view_issues
+from ._views import get_issues_and_stats, set_ranking
 
 main = Blueprint("main", __name__)
 
@@ -11,7 +11,7 @@ main = Blueprint("main", __name__)
 def index():
     """Index Page"""
 
-    issues, stats = view_issues()
+    issues, stats = get_issues_and_stats(cache=False)
 
     return render_template("index.html", issues=issues, stats=stats)
 

@@ -2,7 +2,7 @@
 
 import hashlib
 import logging
-from dataclasses import dataclass, field, fields
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -43,6 +43,10 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
         are solely derived from attribute values"""
         # updated_at_display
         self.updated_at_display = _time_ago(_convert_to_datetime(self.updated_at))
+
+    def convert_to_dict(self):
+        """Return the current dataclass as dict"""
+        return asdict(self)
 
 
 @dataclass

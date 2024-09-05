@@ -2,8 +2,9 @@
 
 import logging
 
-from todo_merger._config import read_issues_config, write_issues_config
-from todo_merger._issues import (
+from ._cache import read_issues_cache, write_issues_cache
+from ._config import read_issues_config, write_issues_config
+from ._issues import (
     ISSUE_RANKING_TABLE,
     IssueItem,
     IssuesStats,
@@ -14,19 +15,27 @@ from todo_merger._issues import (
 )
 
 
-def view_issues() -> tuple[list[IssueItem], IssuesStats]:
+def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats]:
     """Functions to view all issues"""
-    config = read_issues_config()
-    issues = get_all_issues()
+    # Get issues (either cache or online)
+    if cache:
+        issues = read_issues_cache()
+    else:
+        issues = get_all_issues()
+        write_issues_cache(issues=issues)
+    # Default prioritization
     issues = prioritize_issues(issues)
+    # Issues custom config (ranking)
+    config = read_issues_config()
     issues = apply_user_issue_ranking(issues=issues, ranking_dict=config)
+    # Stats
     stats = get_issues_stats(issues)
 
     return issues, stats
 
 
 def set_ranking(issue: str, rank: str) -> None:
-    """Set new ranking of issue"""
+    """Set new ranking of individual issue inside of the issues configuration file"""
     rank_int = ISSUE_RANKING_TABLE.get(rank, ISSUE_RANKING_TABLE["normal"])
     config = read_issues_config()
 
