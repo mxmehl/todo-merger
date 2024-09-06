@@ -49,8 +49,17 @@
   .title {
     font-weight: 700;
 
-    icon {
+    .icon {
       margin-right: 5px;
+    }
+
+    .link {
+      text-decoration: none;
+      color: unset;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 
