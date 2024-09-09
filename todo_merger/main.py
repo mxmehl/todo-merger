@@ -4,7 +4,7 @@ from datetime import datetime
 
 from flask import Blueprint, current_app, redirect, render_template, request
 
-from ._cache import get_cache_status
+from ._cache import add_to_seen_issues, get_cache_status
 from ._views import get_issues_and_stats, set_ranking
 
 main = Blueprint("main", __name__)
@@ -45,5 +45,16 @@ def reload():
     """Reload all issues and break cache"""
 
     current_app.config["current_cache_timer"] = None
+
+    return redirect("/")
+
+
+@main.route("/mark-as-seen", methods=["GET"])
+def mark_as_seen():
+    """Mark one or all issues as seen"""
+
+    issues = request.args.get("issues", "").split(",")
+
+    add_to_seen_issues(issues=issues)
 
     return redirect("/")

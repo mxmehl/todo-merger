@@ -17,7 +17,7 @@
   <p>
     🆕 <strong>New issues</strong>: {% for id, title in new_issues.items() %}{{ title }}&nbsp;<a href="#{{ id }}" title="Jump to issue"><i class="fa-solid fa-arrow-turn-down"></i></a>{{ ", " if not loop.last else "" }}
     {% endfor %}
-    <a href="/mark-as-seen"><button class="secondary x-small" id="mark-as-seen"><i class="fa-solid fa-check"></i> Mark all issues as seen</button></a>
+    <a href="/mark-as-seen?issues={{ new_issues|join(',')}}"><button class="secondary x-small" id="mark-as-seen"><i class="fa-solid fa-check"></i> Mark all issues as seen</button></a>
   </p>
 </div>
 {% endif %}
@@ -80,8 +80,8 @@
       {% endif %}
     </div>
   </div>
-  <div class="backtop">
-    <a href="#" title="Back to top, and unmark this issue"><button><i class="fa-solid fa-arrow-turn-up"></i> Back to top</button></a>
+  <div class="markseen">
+    <a href="/mark-as-seen?issues={{ issue.uid }}" title="Mark issue as seen"><button><i class="fa-solid fa-check"></i> Mark as seen</button></a>
   </div>
 </div>
 {%- endfor %}

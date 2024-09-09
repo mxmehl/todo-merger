@@ -10,7 +10,7 @@ from platformdirs import user_cache_dir
 from ._issues import IssueItem
 
 
-def _read_cache_file(filename: str) -> dict | list[dict]:
+def _read_cache_file(filename: str) -> list[dict | str]:
     """Return a JSON file from the cache directory"""
     cache_file = join(user_cache_dir("todo-merger", ensure_exists=True), filename)
 
@@ -61,26 +61,6 @@ def read_issues_cache() -> list[IssueItem]:
     return []
 
 
-def get_unseen_issues(issues: list[IssueItem]) -> dict[str, str]:
-    """Return a list of issue IDs that haven't been seen before"""
-    # Read seen file
-    seen_issues_cached: dict = _read_cache_file(filename="seen-issues.json")  # type: ignore
-
-    new_seen_issues = {}
-    unseen_issues = {}
-
-    for issue in issues:
-        if issue.uid not in seen_issues_cached:
-            logging.debug("Issue %s hasn't been seen before", issue.uid)
-            unseen_issues[issue.uid] = issue.title
-
-        new_seen_issues[issue.uid] = issue.title
-
-    _write_cache_file(filename="seen-issues.json", content=new_seen_issues)
-
-    return unseen_issues
-
-
 def write_issues_cache(issues: list[IssueItem]) -> None:
     """Write issues cache file"""
     issues_as_dict = [issue.convert_to_dict() for issue in issues]
@@ -106,3 +86,32 @@ def get_cache_status(cache_timer: None | datetime, timeout_seconds: int) -> bool
 
     logging.debug("Cache is still considered to be valid")
     return True
+
+
+def get_unseen_issues(issues: list[IssueItem]) -> dict[str, str]:
+    """Return a list of issue IDs that haven't been seen before"""
+    # Read seen file
+    seen_issues_cached: list[str] = _read_cache_file(filename="seen-issues.json")  # type: ignore
+
+    unseen_issues = {}
+
+    for issue in issues:
+        if issue.uid not in seen_issues_cached:
+            logging.debug("Issue %s hasn't been seen before", issue.uid)
+            unseen_issues[issue.uid] = issue.title
+
+    return unseen_issues
+
+
+def add_to_seen_issues(issues: list[str]) -> None:
+    """Add one or multiple issues to the seen issues list"""
+
+    # Read seen file
+    seen_issues_cached: list[str] = _read_cache_file(filename="seen-issues.json")  # type: ignore
+
+    # Extend seen issues with new list
+    for issue in issues:
+        seen_issues_cached.append(issue)
+
+    # Update file
+    _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)

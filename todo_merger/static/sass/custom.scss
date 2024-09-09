@@ -3,7 +3,6 @@
   display: flex;
   flex-wrap: nowrap;
   column-gap: 10px;
-  transition: background-color 0.3s ease;
 
   .rank {
     align-content: center;
@@ -72,23 +71,19 @@
     }
   }
 
-  div.backtop {
+  // Mechanism to show new issues, and mark them as seen
+  div.markseen {
     margin-left: 10px;
-
     display: none;
-
     color: #fff;
   }
-
   &:target {
-
     background-color: #404c5f;
-
     @media (prefers-color-scheme: light) {
       background-color: #d3d1d1;
     }
 
-    .backtop {
+    .markseen {
       display: inline;
     }
   }
