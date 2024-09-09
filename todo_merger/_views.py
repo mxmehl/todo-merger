@@ -2,7 +2,7 @@
 
 import logging
 
-from ._cache import read_issues_cache, write_issues_cache
+from ._cache import get_unseen_issues, read_issues_cache, write_issues_cache
 from ._config import read_issues_config, write_issues_config
 from ._issues import (
     ISSUE_RANKING_TABLE,
@@ -15,14 +15,17 @@ from ._issues import (
 )
 
 
-def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats]:
-    """Functions to view all issues"""
+def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
+    """Functions to view all issues. Returns: list of IssueItem, a IssueStats
+    object, and list of issue IDs"""
     # Get issues (either cache or online)
     if cache:
         issues = read_issues_cache()
     else:
         issues = get_all_issues()
         write_issues_cache(issues=issues)
+    # Get previously unseen issues
+    new_issues = get_unseen_issues(issues=issues)
     # Default prioritization
     issues = prioritize_issues(issues)
     # Issues custom config (ranking)
@@ -31,7 +34,7 @@ def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats]:
     # Stats
     stats = get_issues_stats(issues)
 
-    return issues, stats
+    return issues, stats, new_issues
 
 
 def set_ranking(issue: str, rank: str) -> None:
