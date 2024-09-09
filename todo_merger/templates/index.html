@@ -6,17 +6,29 @@
 </h1>
 
 <p>
-  <strong>Overview</strong>:
+  ℹ️ <strong>Overview</strong>:
   {{ stats.total }} items, {{ stats.issues }} issues and {{ stats.pulls }} PRs/MRs.
   {{ stats.gitlab }} from GitLab, {{ stats.github }} from GitHub.
   {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
-  <br />
+</p>
+
+{% if new_issues %}
+<div class="new_issues">
+  <p>
+    🆕 <strong>New issues</strong>: {% for id, title in new_issues.items() %}{{ title }}&nbsp;<a href="#{{ id }}" title="Jump to issue"><i class="fa-solid fa-arrow-turn-down"></i></a>{{ ", " if not loop.last else "" }}
+    {% endfor %}
+    <a href="/mark-as-seen"><button class="secondary x-small" id="mark-as-seen"><i class="fa-solid fa-check"></i> Mark all issues as seen</button></a>
+  </p>
+</div>
+{% endif %}
+
+<div class="reload">
   <a href="/reload">
-    <button class="secondary" id="refresh-button">
+    <button class="secondary small">
       <i class="fa-solid fa-rotate-right"></i> Reload all issues
     </button>
   </a>
-</p>
+</div>
 
 {%- for issue in issues|sort(attribute="rank") %}
 <div class="issue" id="{{ issue.uid }}">
@@ -67,6 +79,9 @@
       <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
       {% endif %}
     </div>
+  </div>
+  <div class="backtop">
+    <a href="#" title="Back to top, and unmark this issue"><button><i class="fa-solid fa-arrow-turn-up"></i> Back to top</button></a>
   </div>
 </div>
 {%- endfor %}

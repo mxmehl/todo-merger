@@ -23,9 +23,9 @@ def index():
     if not cache:
         current_app.config["current_cache_timer"] = datetime.now()
 
-    issues, stats = get_issues_and_stats(cache=cache)
+    issues, stats, new_issues = get_issues_and_stats(cache=cache)
 
-    return render_template("index.html", issues=issues, stats=stats)
+    return render_template("index.html", issues=issues, stats=stats, new_issues=new_issues)
 
 
 @main.route("/ranking", methods=["GET"])

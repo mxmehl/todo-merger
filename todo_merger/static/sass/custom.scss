@@ -1,8 +1,9 @@
 .issue {
-  padding: 10px 0 10px 0;
+  padding: 10px;
   display: flex;
   flex-wrap: nowrap;
   column-gap: 10px;
+  transition: background-color 0.3s ease;
 
   .rank {
     align-content: center;
@@ -70,8 +71,40 @@
       margin-right: 10px;
     }
   }
+
+  div.backtop {
+    margin-left: 10px;
+
+    display: none;
+
+    color: #fff;
+  }
+
+  &:target {
+
+    background-color: #404c5f;
+
+    @media (prefers-color-scheme: light) {
+      background-color: #d3d1d1;
+    }
+
+    .backtop {
+      display: inline;
+    }
+  }
 }
 
-#refresh-button {
-  padding: 5px 10px;
+button {
+
+  &#mark-as-seen {
+    margin-left: 10px;
+  }
+
+  &.small {
+    padding: 5px 10px;
+  }
+
+  &.x-small {
+    padding: 0px 5px;
+  }
 }

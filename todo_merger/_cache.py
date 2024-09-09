@@ -61,22 +61,20 @@ def read_issues_cache() -> list[IssueItem]:
     return []
 
 
-def get_unseen_issues(issues: list[IssueItem]) -> list[str]:
+def get_unseen_issues(issues: list[IssueItem]) -> dict[str, str]:
     """Return a list of issue IDs that haven't been seen before"""
     # Read seen file
     seen_issues_cached: dict = _read_cache_file(filename="seen-issues.json")  # type: ignore
-    # seen_issues = {"issue_id": datetime_seen}
 
     new_seen_issues = {}
-    unseen_issues = []
+    unseen_issues = {}
 
     for issue in issues:
         if issue.uid not in seen_issues_cached:
             logging.debug("Issue %s hasn't been seen before", issue.uid)
-            new_seen_issues[issue.uid] = datetime.now()
-            unseen_issues.append(issue.uid)
-        else:
-            new_seen_issues[issue.uid] = seen_issues_cached[issue.uid]
+            unseen_issues[issue.uid] = issue.title
+
+        new_seen_issues[issue.uid] = issue.title
 
     _write_cache_file(filename="seen-issues.json", content=new_seen_issues)
 
