@@ -10,7 +10,7 @@ from platformdirs import user_cache_dir
 from ._issues import IssueItem
 
 
-def read_issues_cache():
+def read_issues_cache() -> list[IssueItem]:
     """Return the issues cache"""
     cache_file = join(user_cache_dir("todo-merger", ensure_exists=True), "issues.json")
 
@@ -32,14 +32,14 @@ def read_issues_cache():
             "Will ignore any issues cache.",
             cache_file,
         )
-        return {}
+        return []
 
     except FileNotFoundError:
         logging.debug(
             "Issues cache file '%s' has not been found. Initializing a new empty one.",
             cache_file,
         )
-        default_issues_cache: dict = {}
+        default_issues_cache: list = []
         write_issues_cache(issues=default_issues_cache)
 
         return default_issues_cache
