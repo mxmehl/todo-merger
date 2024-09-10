@@ -35,7 +35,10 @@ def ranking():
     issue = request.args.get("issue", "")
     rank_new = request.args.get("rank", "")
 
+    # Set ranking
     set_ranking(issue=issue, rank=rank_new)
+    # When ranking an issue, it also makes the issue be marked as seen
+    add_to_seen_issues(issues=[issue])
 
     return redirect("/")
 
