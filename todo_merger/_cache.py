@@ -111,6 +111,7 @@ def add_to_seen_issues(issues: list[str]) -> None:
 
     # Extend seen issues with new list
     for issue in issues:
+        logging.debug("Marking issue %s as seen", issue)
         seen_issues_cached.append(issue)
 
     # Update file
