@@ -242,7 +242,10 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
         assignee_username=myuser, state="opened", scope="all"  # type: ignore
     )
     # See https://docs.gitlab.com/ee/api/merge_requests.html
-    review_requests = gitlab.mergerequests.list(
+    merge_requests_assigned = gitlab.mergerequests.list(
+        assignee_username=myuser, state="opened", scope="all"
+    )
+    merge_requests_reviews = gitlab.mergerequests.list(
         reviewer_username=myuser, state="opened", scope="all"
     )
 
@@ -250,7 +253,12 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
         _import_gitlab_issues(issues=assigned_issues, myuser=myuser, instance_id=instance_id)
     )
     issues.extend(
-        _import_gitlab_issues(issues=review_requests, myuser=myuser, instance_id=instance_id)
+        _import_gitlab_issues(
+            issues=merge_requests_assigned, myuser=myuser, instance_id=instance_id
+        )
+    )
+    issues.extend(
+        _import_gitlab_issues(issues=merge_requests_reviews, myuser=myuser, instance_id=instance_id)
     )
 
     return issues
