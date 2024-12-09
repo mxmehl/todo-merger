@@ -5,11 +5,14 @@
   Create new ToDo
 </h1>
 
+{# Show flash messages #}
+{% include "flash.html" %}
+
 <form method="POST">
   <fieldset>
     <label>
       ToDo Title
-      <input name="issue_title" placeholder="Title of new todo item" autofocus />
+      <input name="issue_title" placeholder="Title of new todo item" autofocus required />
     </label>
   </fieldset>
 

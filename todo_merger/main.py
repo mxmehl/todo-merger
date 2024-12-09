@@ -2,7 +2,8 @@
 
 from datetime import datetime
 
-from flask import Blueprint, current_app, redirect, render_template, request
+from flask import Blueprint, current_app, flash, redirect, render_template, request
+from werkzeug.wrappers import Response
 
 from ._cache import add_to_seen_issues, get_cache_status
 from ._views import (
@@ -17,7 +18,7 @@ main = Blueprint("main", __name__)
 
 
 @main.route("/", methods=["GET"])
-def index():
+def index() -> str:
     """Index Page"""
 
     # Find out whether current cache timer is still valid
@@ -35,7 +36,7 @@ def index():
 
 
 @main.route("/ranking", methods=["GET"])
-def ranking():
+def ranking() -> Response:
     """Set ranking"""
 
     issue = request.args.get("issue", "")
@@ -50,7 +51,7 @@ def ranking():
 
 
 @main.route("/reload", methods=["GET"])
-def reload():
+def reload() -> Response:
     """Reload all issues and break cache"""
 
     refresh_issues_cache()
@@ -59,7 +60,7 @@ def reload():
 
 
 @main.route("/mark-as-seen", methods=["GET"])
-def mark_as_seen():
+def mark_as_seen() -> Response:
     """Mark one or all issues as seen"""
 
     issues = request.args.get("issues", "").split(",")
@@ -70,7 +71,7 @@ def mark_as_seen():
 
 
 @main.route("/new", methods=["GET"])
-def new_form():
+def new_form() -> str:
     """Page form to create new issues"""
 
     labels = todo_repo_get_labels()
@@ -81,13 +82,20 @@ def new_form():
 
 
 @main.route("/new", methods=["POST"])
-def new_create():
+def new_create() -> Response:
     """Create a new issue"""
 
-    title = request.form["issue_title"]
-    labels = request.form.getlist("labels")
+    title: str = request.form.get("issue_title", "")
+    labels: list[str] = request.form.getlist("labels")
 
-    _ = todo_repo_create_issue(title=title, labels=labels)
+    # Catch potential empty title
+    if not title:
+        flash("Title cannot be empty", "error")
+        return redirect("/new")
+
+    # Create new issue
+    new_url = todo_repo_create_issue(title=title, labels=labels)
+    flash(f"New issue created: <a href='{new_url}' target='_blank'>{new_url}</a>", "success")
 
     # If user wants back to overview, refresh cache before to also get the newly created issue
     if request.form.get("submit_and_index"):
