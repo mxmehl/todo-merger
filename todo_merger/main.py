@@ -85,12 +85,18 @@ def new_form() -> str:
 def new_create() -> Response:
     """Create a new issue"""
 
+    # Upon cancel request, also refresh cache
+    if request.form.get("cancel"):
+        refresh_issues_cache()
+        return redirect("/")
+
+    # Get relevant form data
     title: str = request.form.get("issue_title", "")
     labels: list[str] = request.form.getlist("labels")
 
     # Catch potential empty title
     if not title:
-        flash("Title cannot be empty", "error")
+        flash("Issue title cannot be empty", "error")
         return redirect("/new")
 
     # Create new issue

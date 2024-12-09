@@ -91,6 +91,7 @@
   }
 }
 
+// Buttons and button-like elements
 button {
 
   &#mark-as-seen {
@@ -104,12 +105,28 @@ button {
   &.x-small {
     padding: 0px 5px;
   }
+
+  &.cancel {
+    --cancel-color: #990404;
+    background-color: var(--cancel-color);
+    border-color: var(--cancel-color);
+  }
+
+  &.fullwidth {
+    width: 100%;
+  }
 }
 
 .action-buttons {
   display: flex;
   flex-wrap: nowrap;
   column-gap: 10px;
+}
+
+input[type="submit"].cancel {
+  --cancel-color: #990404;
+  background-color: var(--cancel-color);
+  border-color: var(--cancel-color);
 }
 
 // Flask flash messages
