@@ -4,6 +4,7 @@ import argparse
 import logging
 import signal
 import sys
+import uuid
 from importlib.metadata import version
 from os import kill, path
 
@@ -152,6 +153,9 @@ def create_app(config_file: str):
             }
         },
     )
+
+    # Set a secret key for the session
+    app.secret_key = str(uuid.uuid4().hex)
 
     # Load app config and login to services (e.g. GitHub and GitLab)
     app.config["services"] = {}
