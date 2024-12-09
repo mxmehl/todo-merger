@@ -8,28 +8,24 @@
 <form method="POST">
   <fieldset>
     <label>
-      Title
-      <input
-        name="first_name"
-        placeholder="First name"
-        autocomplete="given-name"
-      />
+      ToDo Title
+      <input name="issue_title" placeholder="Title of new todo item" autofocus />
     </label>
   </fieldset>
 
   <fieldset>
-    <legend>Labels:</legend>
+    <legend>Available Labels</legend>
     {% for label, color in labels.items() %}
-    <label {% if colored_labels %}style="color: {{ color }}"{% endif %}>
-      <input type="checkbox" name="{{ label }}" />
+    <label {% if colored_labels %}style="color: {{ color }}" {% endif %}>
+      <input type="checkbox" name="labels" value="{{ label }}" />
       <span>{{ label }}</span>
     </label>
     {% endfor %}
   </fieldset>
 
-  <input
-    type="submit"
-    value="Create"
-  />
+  <div class="grid">
+    <input type="submit" name="submit_and_new" value="Submit and create new issue" />
+    <input type="submit" name="submit_and_index" value="Submit and return to overview" class="secondary" />
+  </div>
 </form>
 {% endblock %}

@@ -2,6 +2,8 @@
 
 import logging
 
+from flask import current_app
+
 from ._cache import get_unseen_issues, read_issues_cache, write_issues_cache
 from ._config import read_issues_config, write_issues_config
 from ._issues import (
@@ -13,7 +15,7 @@ from ._issues import (
     get_issues_stats,
     prioritize_issues,
 )
-from ._personal_todos import todo_repo_get_gitlab_labels
+from ._personal_todos import todo_repo_create_gitlab_issue, todo_repo_get_gitlab_labels
 
 
 def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
@@ -57,6 +59,16 @@ def set_ranking(issue: str, rank: str) -> None:
         write_issues_config(issues_config=config)
 
 
+def refresh_issues_cache() -> None:
+    """Refresh the cache of issues"""
+    current_app.config["current_cache_timer"] = None
+
+
 def todo_repo_get_labels() -> dict[str, str]:
-    """Get all labels from a repository"""
+    """Get all labels from the personal todo repository"""
     return todo_repo_get_gitlab_labels()
+
+
+def todo_repo_create_issue(title: str, labels: list[str]) -> str:
+    """Create a new issue in the personal todo repository"""
+    return todo_repo_create_gitlab_issue(title=title, labels=labels)

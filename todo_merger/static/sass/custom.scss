@@ -103,3 +103,9 @@ button {
     padding: 0px 5px;
   }
 }
+
+.action-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  column-gap: 10px;
+}

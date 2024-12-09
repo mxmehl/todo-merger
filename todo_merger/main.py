@@ -5,7 +5,13 @@ from datetime import datetime
 from flask import Blueprint, current_app, redirect, render_template, request
 
 from ._cache import add_to_seen_issues, get_cache_status
-from ._views import get_issues_and_stats, set_ranking, todo_repo_get_labels
+from ._views import (
+    get_issues_and_stats,
+    refresh_issues_cache,
+    set_ranking,
+    todo_repo_create_issue,
+    todo_repo_get_labels,
+)
 
 main = Blueprint("main", __name__)
 
@@ -47,7 +53,7 @@ def ranking():
 def reload():
     """Reload all issues and break cache"""
 
-    current_app.config["current_cache_timer"] = None
+    refresh_issues_cache()
 
     return redirect("/")
 
@@ -64,11 +70,28 @@ def mark_as_seen():
 
 
 @main.route("/new", methods=["GET"])
-def new():
-    """New issues page"""
+def new_form():
+    """Page form to create new issues"""
 
     labels = todo_repo_get_labels()
 
     return render_template(
         "new.html", labels=labels, colored_labels=current_app.config["todo_repo"]["colored_labels"]
     )
+
+
+@main.route("/new", methods=["POST"])
+def new_create():
+    """Create a new issue"""
+
+    title = request.form["issue_title"]
+    labels = request.form.getlist("labels")
+
+    todo_repo_create_issue(title=title, labels=labels)
+
+    # If user wants back to overview, refresh cache before to also get the newly created issue
+    if request.form.get("submit_and_index"):
+        refresh_issues_cache()
+        return redirect("/")
+
+    return redirect("/new")
