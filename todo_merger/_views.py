@@ -2,6 +2,8 @@
 
 import logging
 
+from flask import current_app
+
 from ._cache import get_unseen_issues, read_issues_cache, write_issues_cache
 from ._config import read_issues_config, write_issues_config
 from ._issues import (
@@ -12,6 +14,12 @@ from ._issues import (
     get_all_issues,
     get_issues_stats,
     prioritize_issues,
+)
+from ._personal_todos import (
+    todo_repo_create_github_issue,
+    todo_repo_create_gitlab_issue,
+    todo_repo_get_github_labels,
+    todo_repo_get_gitlab_labels,
 )
 
 
@@ -54,3 +62,35 @@ def set_ranking(issue: str, rank: str) -> None:
 
         # Update config file
         write_issues_config(issues_config=config)
+
+
+def refresh_issues_cache() -> None:
+    """Refresh the cache of issues"""
+    current_app.config["current_cache_timer"] = None
+
+
+def todo_repo_get_labels() -> dict[str, str]:
+    """Get all labels from the personal todo repository"""
+    service, login = (
+        current_app.config["todo_repo"]["service"],
+        current_app.config["todo_repo"]["login"],
+    )
+
+    if service == "gitlab":
+        return todo_repo_get_gitlab_labels(gitlab=login)
+
+    return todo_repo_get_github_labels(github=login)
+
+
+def todo_repo_create_issue(title: str, labels: list[str]) -> str:
+    """Create a new issue in the personal todo repository. Returns the web URL
+    of the new issue"""
+    service, login = (
+        current_app.config["todo_repo"]["service"],
+        current_app.config["todo_repo"]["login"],
+    )
+
+    if service == "gitlab":
+        return todo_repo_create_gitlab_issue(gitlab=login, title=title, labels=labels)
+
+    return todo_repo_create_github_issue(github=login, title=title, labels=labels)

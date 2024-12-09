@@ -4,6 +4,7 @@ import argparse
 import logging
 import signal
 import sys
+import uuid
 from importlib.metadata import version
 from os import kill, path
 
@@ -153,6 +154,9 @@ def create_app(config_file: str):
         },
     )
 
+    # Set a secret key for the session
+    app.secret_key = str(uuid.uuid4().hex)
+
     # Load app config and login to services (e.g. GitHub and GitLab)
     app.config["services"] = {}
     for name, service in load_app_services_config(config_file).items():
@@ -163,6 +167,28 @@ def create_app(config_file: str):
     app.config["cache_timeout_seconds"] = get_app_config(config_file, "cache").get(
         "timeout_seconds", 600
     )
+
+    # Get todo-repo config
+    if todo_repo_config := get_app_config(
+        config_file, "personal-todo-repo", warn_on_missing_key=False
+    ):
+        app.config["todo_repo"] = todo_repo_config
+        # Find the GitHub/GitLab service object that is configured for the personal ToDo repo
+        try:
+            app.config["todo_repo"]["service"], app.config["todo_repo"]["login"] = app.config[
+                "services"
+            ][app.config["todo_repo"]["service"]]
+        except KeyError:
+            logging.critical(
+                "The 'todo-repo' section in the config file refers to a service that is not defined"
+            )
+            sys.exit(1)
+    else:
+        logging.info("No 'todo-repo' section found in config file. Disabling this functionality")
+        app.config["todo_repo"] = None
+
+    # Print app config in DEBUG
+    logging.debug("App config: %s", app.config)
 
     # blueprint for app
     from .main import main as main_blueprint  # pylint: disable=import-error

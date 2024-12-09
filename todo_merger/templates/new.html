@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Create new ToDo
+</h1>
+
+{# Show flash messages #}
+{% include "flash.html" %}
+
+<form method="POST">
+  <fieldset>
+    <label>
+      ToDo Title
+      <input name="issue_title" placeholder="Title of new todo item" autofocus />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Available Labels</legend>
+    {% for label, color in labels.items() %}
+    <label {% if colored_labels %}style="color: {{ color }}" {% endif %}>
+      <input type="checkbox" name="labels" value="{{ label }}" />
+      <span>{{ label }}</span>
+    </label>
+    {% endfor %}
+  </fieldset>
+
+  <div class="grid">
+    <input type="submit" name="submit_and_new" value="Submit and create new issue" />
+    <input type="submit" name="submit_and_index" value="Submit and return to overview" class="secondary" />
+    <input type="submit" name="cancel" value="Cancel" class="cancel" />
+  </div>
+</form>
+{% endblock %}

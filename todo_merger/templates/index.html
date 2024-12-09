@@ -5,6 +5,9 @@
   My assigned issues and pull request reviews
 </h1>
 
+{# Show flash messages #}
+{% include "flash.html" %}
+
 <p>
   ℹ️ <strong>Overview</strong>:
   {{ stats.total }} items, {{ stats.issues }} issues and {{ stats.pulls }} PRs/MRs.
@@ -22,7 +25,14 @@
 </div>
 {% endif %}
 
-<div class="reload">
+<div class="action-buttons">
+  {% if personal_todo_repo_configured %}
+  <a href="/new">
+    <button class="secondary small">
+      <i class="fa-solid fa-plus"></i> Create new personal ToDo
+    </button>
+  </a>
+  {% endif %}
   <a href="/reload">
     <button class="secondary small">
       <i class="fa-solid fa-rotate-right"></i> Reload all issues
