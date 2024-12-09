@@ -239,14 +239,14 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
 
     # See https://docs.gitlab.com/ee/api/issues.html
     assigned_issues = gitlab.issues.list(
-        assignee_username=myuser, state="opened", scope="all"  # type: ignore
+        assignee_username=myuser, state="opened", scope="all", get_all=True
     )
     # See https://docs.gitlab.com/ee/api/merge_requests.html
     merge_requests_assigned = gitlab.mergerequests.list(
-        assignee_username=myuser, state="opened", scope="all"
+        assignee_username=myuser, state="opened", scope="all", get_all=True
     )
     merge_requests_reviews = gitlab.mergerequests.list(
-        reviewer_username=myuser, state="opened", scope="all"
+        reviewer_username=myuser, state="opened", scope="all", get_all=True
     )
 
     issues.extend(
