@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Blueprint, current_app, redirect, render_template, request
 
 from ._cache import add_to_seen_issues, get_cache_status
-from ._views import get_issues_and_stats, set_ranking
+from ._views import get_issues_and_stats, set_ranking, todo_repo_get_labels
 
 main = Blueprint("main", __name__)
 
@@ -61,3 +61,14 @@ def mark_as_seen():
     add_to_seen_issues(issues=issues)
 
     return redirect("/")
+
+
+@main.route("/new", methods=["GET"])
+def new():
+    """New issues page"""
+
+    labels = todo_repo_get_labels()
+
+    return render_template(
+        "new.html", labels=labels, colored_labels=current_app.config["todo_repo"]["colored_labels"]
+    )

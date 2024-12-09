@@ -164,6 +164,9 @@ def create_app(config_file: str):
         "timeout_seconds", 600
     )
 
+    # Get todo-repo config
+    app.config["todo_repo"] = get_app_config(config_file, "todo-repo")
+
     # blueprint for app
     from .main import main as main_blueprint  # pylint: disable=import-error
 

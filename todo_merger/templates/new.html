@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Create new ToDo
+</h1>
+
+<form method="POST">
+  <fieldset>
+    <label>
+      Title
+      <input
+        name="first_name"
+        placeholder="First name"
+        autocomplete="given-name"
+      />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Labels:</legend>
+    {% for label, color in labels.items() %}
+    <label {% if colored_labels %}style="color: {{ color }}"{% endif %}>
+      <input type="checkbox" name="{{ label }}" />
+      <span>{{ label }}</span>
+    </label>
+    {% endfor %}
+  </fieldset>
+
+  <input
+    type="submit"
+    value="Create"
+  />
+</form>
+{% endblock %}

@@ -13,6 +13,7 @@ from ._issues import (
     get_issues_stats,
     prioritize_issues,
 )
+from ._personal_todos import todo_repo_get_gitlab_labels
 
 
 def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
@@ -54,3 +55,8 @@ def set_ranking(issue: str, rank: str) -> None:
 
         # Update config file
         write_issues_config(issues_config=config)
+
+
+def todo_repo_get_labels() -> dict[str, str]:
+    """Get all labels from a repository"""
+    return todo_repo_get_gitlab_labels()
