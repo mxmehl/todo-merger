@@ -77,8 +77,10 @@
     display: none;
     color: #fff;
   }
+
   &:target {
     background-color: #404c5f;
+
     @media (prefers-color-scheme: light) {
       background-color: #d3d1d1;
     }

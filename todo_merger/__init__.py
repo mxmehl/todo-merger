@@ -166,6 +166,10 @@ def create_app(config_file: str):
 
     # Get todo-repo config
     app.config["todo_repo"] = get_app_config(config_file, "todo-repo")
+    # Find the GitHub/GitLab service object that is configured for the personal ToDo repo
+    app.config["todo_repo"]["service"], app.config["todo_repo"]["login"] = app.config["services"][
+        app.config["todo_repo"]["service"]
+    ]
 
     # blueprint for app
     from .main import main as main_blueprint  # pylint: disable=import-error

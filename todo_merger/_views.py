@@ -66,9 +66,26 @@ def refresh_issues_cache() -> None:
 
 def todo_repo_get_labels() -> dict[str, str]:
     """Get all labels from the personal todo repository"""
-    return todo_repo_get_gitlab_labels()
+    service, login = (
+        current_app.config["todo_repo"]["service"],
+        current_app.config["todo_repo"]["login"],
+    )
+
+    if service == "gitlab":
+        return todo_repo_get_gitlab_labels(gitlab=login)
+
+    return {}
 
 
 def todo_repo_create_issue(title: str, labels: list[str]) -> str:
-    """Create a new issue in the personal todo repository"""
-    return todo_repo_create_gitlab_issue(title=title, labels=labels)
+    """Create a new issue in the personal todo repository. Returns the web URL
+    of the new issue"""
+    service, login = (
+        current_app.config["todo_repo"]["service"],
+        current_app.config["todo_repo"]["login"],
+    )
+
+    if service == "gitlab":
+        return todo_repo_create_gitlab_issue(gitlab=login, title=title, labels=labels)
+
+    return ""

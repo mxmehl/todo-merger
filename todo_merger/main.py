@@ -87,7 +87,7 @@ def new_create():
     title = request.form["issue_title"]
     labels = request.form.getlist("labels")
 
-    todo_repo_create_issue(title=title, labels=labels)
+    _ = todo_repo_create_issue(title=title, labels=labels)
 
     # If user wants back to overview, refresh cache before to also get the newly created issue
     if request.form.get("submit_and_index"):
