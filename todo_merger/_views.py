@@ -15,7 +15,12 @@ from ._issues import (
     get_issues_stats,
     prioritize_issues,
 )
-from ._personal_todos import todo_repo_create_gitlab_issue, todo_repo_get_gitlab_labels
+from ._personal_todos import (
+    todo_repo_create_github_issue,
+    todo_repo_create_gitlab_issue,
+    todo_repo_get_github_labels,
+    todo_repo_get_gitlab_labels,
+)
 
 
 def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
@@ -74,7 +79,7 @@ def todo_repo_get_labels() -> dict[str, str]:
     if service == "gitlab":
         return todo_repo_get_gitlab_labels(gitlab=login)
 
-    return {}
+    return todo_repo_get_github_labels(github=login)
 
 
 def todo_repo_create_issue(title: str, labels: list[str]) -> str:
@@ -88,4 +93,4 @@ def todo_repo_create_issue(title: str, labels: list[str]) -> str:
     if service == "gitlab":
         return todo_repo_create_gitlab_issue(gitlab=login, title=title, labels=labels)
 
-    return ""
+    return todo_repo_create_github_issue(github=login, title=title, labels=labels)

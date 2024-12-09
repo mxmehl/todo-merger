@@ -175,6 +175,9 @@ def create_app(config_file: str):
         app.config["todo_repo"]["service"]
     ]
 
+    # Print app config in DEBUG
+    logging.debug("App config: %s", app.config)
+
     # blueprint for app
     from .main import main as main_blueprint  # pylint: disable=import-error
 
