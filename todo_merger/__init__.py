@@ -169,11 +169,21 @@ def create_app(config_file: str):
     )
 
     # Get todo-repo config
-    app.config["todo_repo"] = get_app_config(config_file, "todo-repo")
-    # Find the GitHub/GitLab service object that is configured for the personal ToDo repo
-    app.config["todo_repo"]["service"], app.config["todo_repo"]["login"] = app.config["services"][
-        app.config["todo_repo"]["service"]
-    ]
+    if todo_repo_config := get_app_config(config_file, "todo-repo", warn_on_missing_key=False):
+        app.config["todo_repo"] = todo_repo_config
+        # Find the GitHub/GitLab service object that is configured for the personal ToDo repo
+        try:
+            app.config["todo_repo"]["service"], app.config["todo_repo"]["login"] = app.config[
+                "services"
+            ][app.config["todo_repo"]["service"]]
+        except KeyError:
+            logging.critical(
+                "The 'todo-repo' section in the config file refers to a service that is not defined"
+            )
+            sys.exit(1)
+    else:
+        logging.info("No 'todo-repo' section found in config file. Disabling this functionality")
+        app.config["todo_repo"] = None
 
     # Print app config in DEBUG
     logging.debug("App config: %s", app.config)

@@ -63,14 +63,19 @@ def default_config_file_path() -> str:
     return join(user_config_dir("todo-merger", ensure_exists=True), "config.toml")
 
 
-def get_app_config(config_file: str, key: str = ""):
+def get_app_config(config_file: str, key: str = "", warn_on_missing_key: bool = True) -> dict:
     """Return a specific section from the app configuration, or the whole config"""
 
     if not config_file:
         config_file = default_config_file_path()
 
     if key:
-        return _read_app_config_file(config_file)[key]
+        try:
+            return _read_app_config_file(config_file)[key]
+        except KeyError as e:
+            if warn_on_missing_key:
+                logging.warning("Key %s not found in configuration: %s", key, e)
+            return {}
 
     return _read_app_config_file(config_file)
 

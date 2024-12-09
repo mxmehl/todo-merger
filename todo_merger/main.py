@@ -32,7 +32,16 @@ def index() -> str:
 
     issues, stats, new_issues = get_issues_and_stats(cache=cache)
 
-    return render_template("index.html", issues=issues, stats=stats, new_issues=new_issues)
+    # Find out if personal todo repo is configured
+    personal_todo_repo_configured = current_app.config.get("todo_repo", None)
+
+    return render_template(
+        "index.html",
+        issues=issues,
+        stats=stats,
+        new_issues=new_issues,
+        personal_todo_repo_configured=personal_todo_repo_configured,
+    )
 
 
 @main.route("/ranking", methods=["GET"])
