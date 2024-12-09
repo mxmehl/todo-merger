@@ -169,7 +169,9 @@ def create_app(config_file: str):
     )
 
     # Get todo-repo config
-    if todo_repo_config := get_app_config(config_file, "todo-repo", warn_on_missing_key=False):
+    if todo_repo_config := get_app_config(
+        config_file, "personal-todo-repo", warn_on_missing_key=False
+    ):
         app.config["todo_repo"] = todo_repo_config
         # Find the GitHub/GitLab service object that is configured for the personal ToDo repo
         try:
