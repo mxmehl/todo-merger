@@ -182,6 +182,7 @@ def _import_gitlab_issues(
             epic_title=(
                 issue.epic["title"] if hasattr(issue, "epic") and issue.epic is not None else ""
             ),
+            labels=issue.labels,
             milestone_title=issue.milestone["title"] if issue.milestone else "",
             pull=hasattr(issue, "merge_status"),
             ref=issue.references["full"],
@@ -210,6 +211,7 @@ def _import_github_issues(
             ),
             due_date="",
             epic_title="",
+            labels=[label.name for label in issue.labels],
             milestone_title=issue.milestone.title if issue.milestone else "",
             # Ugly fix to make loading of whether it's a PR faster.
             # `issue.pull_request` would trigger another API call

@@ -81,6 +81,10 @@
       {% if issue.epic_title %}
       <span title="Epic"><i class="fa-regular fa-circle-dot"></i> {{ issue.epic_title }}</span>
       {% endif %}
+      {% if issue.labels %}
+      <span title="Labels"><i class="fa-solid fa-tags"></i> {{ issue.labels | join(", ") }}
+      </span>
+      {% endif %}
       {% if issue.assignee_users %}
       <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_users }}</span>
       {% endif %}
