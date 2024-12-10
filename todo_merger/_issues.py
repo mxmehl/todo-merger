@@ -19,19 +19,20 @@ ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 class IssueItem:  # pylint: disable=too-many-instance-attributes
     """Dataclass holding a single issue"""
 
-    uid: str = ""
-    updated_at: datetime = field(default_factory=datetime.now)
-    updated_at_display: str = ""
     assignee_users: list = field(default_factory=list)
     due_date: str = ""
     epic_title: str = ""
+    labels: list = field(default_factory=list)
     milestone_title: str = ""
-    ref: str = ""
     pull: bool = False
-    title: str = ""
-    web_url: str = ""
-    service: str = ""
     rank: int = ISSUE_RANKING_TABLE["normal"]
+    ref: str = ""
+    service: str = ""
+    title: str = ""
+    uid: str = ""
+    updated_at_display: str = ""
+    updated_at: datetime = field(default_factory=datetime.now)
+    web_url: str = ""
 
     def import_values(self, **kwargs):
         """Import data from a dict"""
@@ -174,8 +175,6 @@ def _import_gitlab_issues(
     for issue in issues:
         d = IssueItem()
         d.import_values(
-            uid=f"gitlab-{instance_id}-{issue.id}",
-            updated_at=_convert_to_datetime(issue.updated_at),
             assignee_users=_sort_assignees(
                 [u["username"] for u in issue.assignees if issue.assignees], myuser
             ),
@@ -184,11 +183,13 @@ def _import_gitlab_issues(
                 issue.epic["title"] if hasattr(issue, "epic") and issue.epic is not None else ""
             ),
             milestone_title=issue.milestone["title"] if issue.milestone else "",
-            ref=issue.references["full"],
-            title=issue.title,
-            web_url=issue.web_url,
             pull=hasattr(issue, "merge_status"),
+            ref=issue.references["full"],
             service="gitlab",
+            title=issue.title,
+            uid=f"gitlab-{instance_id}-{issue.id}",
+            updated_at=_convert_to_datetime(issue.updated_at),
+            web_url=issue.web_url,
         )
         d.fill_remaining_fields()
         issueitems.append(d)
@@ -204,21 +205,21 @@ def _import_github_issues(
     for issue in issues:
         d = IssueItem()
         d.import_values(
-            uid=f"github-{issue.id}",
-            updated_at=_convert_to_datetime(issue.updated_at),
             assignee_users=_sort_assignees(
                 [u.login for u in issue.assignees if issue.assignees], myuser
             ),
             due_date="",
             epic_title="",
             milestone_title=issue.milestone.title if issue.milestone else "",
-            ref=_gh_url_to_ref(issue.html_url),
-            title=issue.title,
-            web_url=issue.html_url,
-            # Ugly fix to make loading faster. `issue.pull_request` would
-            # trigger another API call
+            # Ugly fix to make loading of whether it's a PR faster.
+            # `issue.pull_request` would trigger another API call
             pull="/pull/" in issue.html_url,
+            ref=_gh_url_to_ref(issue.html_url),
             service="github",
+            title=issue.title,
+            uid=f"github-{issue.id}",
+            updated_at=_convert_to_datetime(issue.updated_at),
+            web_url=issue.html_url,
         )
         d.fill_remaining_fields()
         issueitems.append(d)
