@@ -5,8 +5,7 @@
   My assigned issues and pull request reviews
 </h1>
 
-{# Show flash messages #}
-{% include "flash.html" %}
+{%- include "flash.html" %} {# Show flash messages #}
 
 <p>
   ℹ️ <strong>Overview</strong>:
@@ -15,7 +14,7 @@
   {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
 </p>
 
-{% if new_issues %}
+{%- if new_issues %}
 <div class="new_issues">
   <p>
     🆕 <strong>New issues</strong>: {% for id, title in new_issues.items() %}{{ title }}&nbsp;<a href="#{{ id }}" title="Jump to issue"><i class="fa-solid fa-arrow-turn-down"></i></a>{{ ", " if not loop.last else "" }}
@@ -23,16 +22,16 @@
     <a href="/mark-as-seen?issues={{ new_issues|join(',')}}"><button class="secondary x-small" id="mark-as-seen"><i class="fa-solid fa-check"></i> Mark all issues as seen</button></a>
   </p>
 </div>
-{% endif %}
+{%- endif %}
 
 <div class="action-buttons">
-  {% if personal_todo_repo_configured %}
+  {%- if personal_todo_repo_configured %}
   <a href="/new">
     <button class="secondary small">
       <i class="fa-solid fa-plus"></i> Create new personal ToDo
     </button>
   </a>
-  {% endif %}
+  {%- endif %}
   <a href="/reload">
     <button class="secondary small">
       <i class="fa-solid fa-rotate-right"></i> Reload all issues
@@ -51,6 +50,7 @@
   <div>
     {# First line: Icon, Title and Service #}
     <div class="title">
+      {%- if display_cfg.show_type %}
       <span class="icon">
         {%- if issue.pull %}
         <i title="Pull / Merge Request" class="fa-solid fa-code-pull-request"></i>
@@ -58,7 +58,9 @@
         <i title="Issue" class="fa-regular fa-circle-dot"></i>
         {%- endif %}
       </span>
+      {%- endif %}
       <a href="{{ issue.web_url }}" target="_blank" class="link">{{- issue.title }}</a>
+      {%- if display_cfg.show_service %}
       {%- if issue.service == "gitlab" %}
       <i class="fa-brands fa-square-gitlab" title="GitLab"></i>
       {%- elif issue.service == "github" %}
@@ -66,32 +68,35 @@
       {%- elif issue.service == "todo" %}
       <i class="fa-solid fa-arrow-up-right-from-square" title="To Do"></i>
       {%- endif %}
+      {%- endif %}
     </div>
     <div class="metadata">
-      {% if issue.ref %}
+      {%- if issue.ref and display_cfg.show_ref %}
       <span title="Reference"><i class="fa-solid fa-map"></i> {{ issue.ref }}</span>
-      {% endif %}
-      {% if issue.due_date %}
+      {%- endif %}
+      {%- if issue.due_date and display_cfg.show_due_date %}
       <span title="Due date"><i class="fa-regular fa-calendar"></i> {{ issue.due_date }}</span>
-      {% endif %}
-      {% if issue.milestone_title %}
+      {%- endif %}
+      {%- if issue.milestone_title and display_cfg.show_milestone %}
       <span title="Milestone"><i class="fa-regular fa-circle-dot"></i> {{ issue.milestone_title }}
       </span>
-      {% endif %}
-      {% if issue.epic_title %}
+      {%- endif %}
+      {%- if issue.epic_title and display_cfg.show_epic %}
       <span title="Epic"><i class="fa-regular fa-circle-dot"></i> {{ issue.epic_title }}</span>
-      {% endif %}
-      {% if issue.labels %}
+      {%- endif %}
+      {%- if issue.labels and display_cfg.show_labels %}
       <span title="Labels"><i class="fa-solid fa-tags"></i> {{ issue.labels | join(", ") }}
       </span>
-      {% endif %}
-      {% if issue.assignee_users %}
+      {%- endif %}
+      {%- if issue.assignee_users and display_cfg.show_assignees %}
       <span title="Assignees"><i class="fa-solid fa-user-group"></i> {{ issue.assignee_users }}</span>
-      {% endif %}
+      {%- endif %}
+      {%- if display_cfg.show_updated_at %}
       <span title="Updated at {{ issue.updated_at }}"><i class="fa-regular fa-clock"></i> {{ issue.updated_at_display }}</span>
-      {% if issue.web_url %}
+      {%- endif %}
+      {%- if issue.web_url and display_cfg.show_web_url %}
       <span title="Open"><a href="{{ issue.web_url }}" target="_blank" title="Open in browser"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></span>
-      {% endif %}
+      {%- endif %}
     </div>
   </div>
   <div class="markseen">

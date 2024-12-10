@@ -168,7 +168,23 @@ def create_app(config_file: str):
         "timeout_seconds", 600
     )
 
-    # Get todo-repo config
+    # Load display config and set default values
+    app.config["display"] = get_app_config(config_file, "display")
+    for display_cfg in (
+        "show_assignees",
+        "show_due_date",
+        "show_epic",
+        "show_labels",
+        "show_milestone",
+        "show_ref",
+        "show_service",
+        "show_type",
+        "show_updated_at",
+        "show_web_url",
+    ):
+        app.config["display"][display_cfg] = app.config["display"].get(display_cfg, True)
+
+    # Get personal-todo-repo config
     if todo_repo_config := get_app_config(
         config_file, "personal-todo-repo", warn_on_missing_key=False
     ):

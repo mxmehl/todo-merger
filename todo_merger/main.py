@@ -41,6 +41,7 @@ def index() -> str:
         stats=stats,
         new_issues=new_issues,
         personal_todo_repo_configured=personal_todo_repo_configured,
+        display_cfg=current_app.config["display"],
     )
 
 

@@ -28,6 +28,18 @@ url = "https://gitlab.com"
 # service = "github-com"
 # repo = "my-username/todos"
 # colored_labels = true
+
+[display]
+show_assignees = true
+show_due_date = true
+show_epic = true
+show_labels = true
+show_milestone = true
+show_ref = true
+show_service = true
+show_type = true
+show_updated_at = true
+show_web_url = true
 """
 
 
