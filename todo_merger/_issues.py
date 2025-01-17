@@ -368,6 +368,18 @@ def apply_user_issue_config(
 
     return issues
 
+def apply_issue_filter(issues: list[IssueItem], issue_filter: str | None) -> list[IssueItem]:
+    """Apply issue filter to issues"""
+    if not issue_filter:
+        logging.debug("No issue filter applied")
+
+    logging.info("Applying issue filter '%s'", issue_filter)
+
+    if issue_filter == "todolist":
+        issues = [issue for issue in issues if issue.todolist]
+
+    return issues
+
 
 # STATS ABOUT FETCHED ISSUES
 

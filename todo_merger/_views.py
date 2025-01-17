@@ -10,6 +10,7 @@ from ._issues import (
     ISSUE_RANKING_TABLE,
     IssueItem,
     IssuesStats,
+    apply_issue_filter,
     apply_user_issue_config,
     get_all_issues,
     get_issues_stats,
@@ -23,7 +24,7 @@ from ._private_tasks import (
 )
 
 
-def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
+def get_issues_and_stats(cache: bool, issue_filter: str | None) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
     """Functions to view all issues. Returns: list of IssueItem, a IssueStats
     object, and list of issue IDs"""
     # Get issues (either cache or online)
@@ -39,6 +40,8 @@ def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dic
     # Issues custom config (ranking)
     config = read_issues_config()
     issues = apply_user_issue_config(issues=issues, issue_config_dict=config)
+    # Apply issue filter
+    issues = apply_issue_filter(issues=issues, issue_filter=issue_filter)
     # Stats
     stats = get_issues_stats(issues)
 

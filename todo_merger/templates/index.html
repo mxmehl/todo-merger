@@ -37,6 +37,19 @@
       <i class="fa-solid fa-rotate-right"></i> Reload all issues
     </button>
   </a>
+  {%- if issue_filter %}
+  <a href="/">
+    <button class="secondary small">
+      <i class="fa-solid fa-filter"></i> Clear filter
+    </button>
+  </a>
+  {%- else %}
+  <a href="/?filter=todolist">
+    <button class="secondary small">
+      <i class="fa-solid fa-clipboard-list"></i> Show todo list
+    </button>
+  </a>
+  {%- endif %}
 </div>
 
 {%- for issue in issues|sort(attribute="rank") %}

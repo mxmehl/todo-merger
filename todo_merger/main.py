@@ -22,6 +22,8 @@ main = Blueprint("main", __name__)
 def index() -> str:
     """Index Page"""
 
+    issue_filter = request.args.get("filter", None)
+
     # Find out whether current cache timer is still valid
     cache = get_cache_status(
         cache_timer=current_app.config["current_cache_timer"],
@@ -31,7 +33,7 @@ def index() -> str:
     if not cache:
         current_app.config["current_cache_timer"] = datetime.now()
 
-    issues, stats, new_issues = get_issues_and_stats(cache=cache)
+    issues, stats, new_issues = get_issues_and_stats(cache=cache, issue_filter=issue_filter)
 
     # Find out if private tasks repo is configured
     private_private_tasks_repo_configured = current_app.config.get("private_tasks_repo", None)
@@ -43,6 +45,7 @@ def index() -> str:
         new_issues=new_issues,
         private_private_tasks_repo_configured=private_private_tasks_repo_configured,
         display_cfg=current_app.config["display"],
+        issue_filter=issue_filter,
     )
 
 
@@ -58,7 +61,7 @@ def ranking() -> Response:
     # When ranking an issue, it also makes the issue be marked as seen
     add_to_seen_issues(issues=[issue])
 
-    return redirect("/")
+    return redirect(request.referrer)
 
 
 @main.route("/todolist", methods=["GET"])
@@ -73,7 +76,7 @@ def todolist() -> Response:
     # When ranking an issue, it also makes the issue be marked as seen
     add_to_seen_issues(issues=[issue])
 
-    return redirect("/")
+    return redirect(request.referrer)
 
 
 @main.route("/reload", methods=["GET"])
