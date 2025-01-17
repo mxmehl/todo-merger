@@ -25,10 +25,10 @@
 {%- endif %}
 
 <div class="action-buttons">
-  {%- if personal_todo_repo_configured %}
+  {%- if private_private_tasks_repo_configured %}
   <a href="/new">
     <button class="secondary small">
-      <i class="fa-solid fa-plus"></i> Create new personal ToDo
+      <i class="fa-solid fa-plus"></i> Create new private task
     </button>
   </a>
   {%- endif %}
@@ -46,6 +46,7 @@
     <a href="/ranking?issue={{ issue.uid }}&rank=pin" class="pin {% if issue.rank == -1 %}enabled{% endif %}"><i class="fa-solid fa-thumbtack"></i></a>
     <a href="/ranking?issue={{ issue.uid }}&rank=high" class="high {% if issue.rank == 1 %}enabled{% endif %}"><i class="fa-solid fa-up-long"></i></a>
     <a href="/ranking?issue={{ issue.uid }}&rank=low" class="low {% if issue.rank == 99 %}enabled{% endif %}"><i class="fa-solid fa-down-long"></i></a>
+    <a href="/ranking?issue={{ issue.uid }}&rank=todo" class="todo {% if issue.rank == 99 %}enabled{% endif %}"><i class="fa-solid fa-clipboard-list"></i></a>
   </div>
   <div>
     {# First line: Icon, Title and Service #}

@@ -15,11 +15,11 @@ from ._issues import (
     get_issues_stats,
     prioritize_issues,
 )
-from ._personal_todos import (
-    todo_repo_create_github_issue,
-    todo_repo_create_gitlab_issue,
-    todo_repo_get_github_labels,
-    todo_repo_get_gitlab_labels,
+from ._private_tasks import (
+    private_tasks_repo_create_github_issue,
+    private_tasks_repo_create_gitlab_issue,
+    private_tasks_repo_get_github_labels,
+    private_tasks_repo_get_gitlab_labels,
 )
 
 
@@ -69,28 +69,28 @@ def refresh_issues_cache() -> None:
     current_app.config["current_cache_timer"] = None
 
 
-def todo_repo_get_labels() -> dict[str, str]:
-    """Get all labels from the personal todo repository"""
+def private_tasks_repo_get_labels() -> dict[str, str]:
+    """Get all labels from the private tasks repository"""
     service, login = (
-        current_app.config["todo_repo"]["service"],
-        current_app.config["todo_repo"]["login"],
+        current_app.config["private_tasks_repo"]["service"],
+        current_app.config["private_tasks_repo"]["login"],
     )
 
     if service == "gitlab":
-        return todo_repo_get_gitlab_labels(gitlab=login)
+        return private_tasks_repo_get_gitlab_labels(gitlab=login)
 
-    return todo_repo_get_github_labels(github=login)
+    return private_tasks_repo_get_github_labels(github=login)
 
 
-def todo_repo_create_issue(title: str, labels: list[str]) -> str:
-    """Create a new issue in the personal todo repository. Returns the web URL
+def private_tasks_repo_create_issue(title: str, labels: list[str]) -> str:
+    """Create a new issue in the private tasks repository. Returns the web URL
     of the new issue"""
     service, login = (
-        current_app.config["todo_repo"]["service"],
-        current_app.config["todo_repo"]["login"],
+        current_app.config["private_tasks_repo"]["service"],
+        current_app.config["private_tasks_repo"]["login"],
     )
 
     if service == "gitlab":
-        return todo_repo_create_gitlab_issue(gitlab=login, title=title, labels=labels)
+        return private_tasks_repo_create_gitlab_issue(gitlab=login, title=title, labels=labels)
 
-    return todo_repo_create_github_issue(github=login, title=title, labels=labels)
+    return private_tasks_repo_create_github_issue(github=login, title=title, labels=labels)

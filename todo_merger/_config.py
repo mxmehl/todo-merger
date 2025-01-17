@@ -23,8 +23,8 @@ service = "gitlab"
 token = ""
 url = "https://gitlab.com"
 
-# Personal ToDo repository configuration
-# [personal-todo-repo]
+# Private tasks repository configuration
+# [private-tasks-repo]
 # service = "github-com"
 # repo = "my-username/todos"
 # colored_labels = true

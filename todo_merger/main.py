@@ -8,10 +8,10 @@ from werkzeug.wrappers import Response
 from ._cache import add_to_seen_issues, get_cache_status
 from ._views import (
     get_issues_and_stats,
+    private_tasks_repo_create_issue,
+    private_tasks_repo_get_labels,
     refresh_issues_cache,
     set_ranking,
-    todo_repo_create_issue,
-    todo_repo_get_labels,
 )
 
 main = Blueprint("main", __name__)
@@ -32,15 +32,15 @@ def index() -> str:
 
     issues, stats, new_issues = get_issues_and_stats(cache=cache)
 
-    # Find out if personal todo repo is configured
-    personal_todo_repo_configured = current_app.config.get("todo_repo", None)
+    # Find out if private tasks repo is configured
+    private_private_tasks_repo_configured = current_app.config.get("private_tasks_repo", None)
 
     return render_template(
         "index.html",
         issues=issues,
         stats=stats,
         new_issues=new_issues,
-        personal_todo_repo_configured=personal_todo_repo_configured,
+        private_private_tasks_repo_configured=private_private_tasks_repo_configured,
         display_cfg=current_app.config["display"],
     )
 
@@ -84,10 +84,10 @@ def mark_as_seen() -> Response:
 def new_form() -> str:
     """Page form to create new issues"""
 
-    labels = todo_repo_get_labels()
+    labels = private_tasks_repo_get_labels()
 
     return render_template(
-        "new.html", labels=labels, colored_labels=current_app.config["todo_repo"]["colored_labels"]
+        "new.html", labels=labels, colored_labels=current_app.config["private_tasks_repo"]["colored_labels"]
     )
 
 
@@ -110,7 +110,7 @@ def new_create() -> Response:
         return redirect("/new")
 
     # Create new issue
-    new_url = todo_repo_create_issue(title=title, labels=labels)
+    new_url = private_tasks_repo_create_issue(title=title, labels=labels)
     flash(f"New issue created: <a href='{new_url}' target='_blank'>{new_url}</a>", "success")
 
     # If user wants back to overview, refresh cache before to also get the newly created issue
