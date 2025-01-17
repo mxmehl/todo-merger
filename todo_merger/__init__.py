@@ -49,6 +49,7 @@ parser.add_argument(
 parser.add_argument(
     "-p", "--pidfile", help="Path to the PID file (in daemon mode)", default=PIDFILE
 )
+parser.add_argument("--port", help="Port the application runs on", type=int, default=8636)
 parser.add_argument(
     "-v",
     "--verbose",
@@ -214,10 +215,10 @@ def create_app(config_file: str):
     return app
 
 
-def run_server(config_file: str):
+def run_server(config_file: str, port: int):
     """Run the Flask server"""
     app = create_app(config_file=config_file)
-    app.run(port=8636)
+    app.run(port=port)
 
 
 def main():
@@ -253,6 +254,6 @@ def main():
             logger.addHandler(logging.FileHandler(args.logfile))
 
             # Run server
-            run_server(config_file=args.config_file)
+            run_server(config_file=args.config_file, port=args.port)
     else:
-        run_server(config_file=args.config_file)
+        run_server(config_file=args.config_file, port=args.port)
