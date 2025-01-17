@@ -299,6 +299,17 @@ def get_all_issues() -> list[IssueItem]:
     return issues
 
 
+# ISSUE CLOSING
+
+# GitHub: PATCH /repos/{owner}/{repo}/issues/{issue_number} -> issue.edit(state="closed")
+# /repos/{owner}/{repo}/issues/{issue_number}
+
+def close_issue(issue: IssueItem) -> None:
+    pass
+
+
+
+
 # ISSUE PRIORIZATION
 
 

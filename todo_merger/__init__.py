@@ -172,6 +172,7 @@ def create_app(config_file: str):
     app.config["display"] = get_app_config(config_file, "display")
     for display_cfg in (
         "show_assignees",
+        "show_close_button",
         "show_due_date",
         "show_epic",
         "show_labels",

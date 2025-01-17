@@ -89,6 +89,20 @@
       display: inline;
     }
   }
+
+  // Close button mechanism. Button should only appear if issue item is hovered
+  div.close {
+    margin-left: 10px;
+    display: none;
+    align-content: center;
+
+  }
+
+  &:hover {
+    div.close {
+      display: inline;
+    }
+  }
 }
 
 // Buttons and button-like elements
@@ -114,6 +128,18 @@ button {
 
   &.fullwidth {
     width: 100%;
+  }
+
+  &.red {
+    background-color: #990404;
+    border-color: #990404;
+    opacity: 0.3;
+
+    &:hover {
+      background-color: #7a0303;
+      border-color: #7a0303;
+      opacity: 1;
+    }
   }
 }
 

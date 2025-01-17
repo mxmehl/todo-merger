@@ -48,6 +48,7 @@
     <a href="/ranking?issue={{ issue.uid }}&rank=low" class="low {% if issue.rank == 99 %}enabled{% endif %}"><i class="fa-solid fa-down-long"></i></a>
   </div>
   <div>
+    <!-- Issue data: {{ issue }} -->
     {# First line: Icon, Title and Service #}
     <div class="title">
       {%- if display_cfg.show_type %}
@@ -102,6 +103,11 @@
   <div class="markseen">
     <a href="/mark-as-seen?issues={{ issue.uid }}" title="Mark issue as seen"><button><i class="fa-solid fa-check"></i> Mark as seen</button></a>
   </div>
+  {%- if display_cfg.show_close_button %}
+  <div class="close">
+    <a href="/close?issue={{ issue.uid }}&service={{ issue.service }}" title="Close issue"><button class="red x-small"><i class="fa-solid fa-xmark"></i></button></a>
+  </div>
+  {%- endif %}
 </div>
 {%- endfor %}
 {% endblock %}

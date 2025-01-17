@@ -31,6 +31,7 @@ url = "https://gitlab.com"
 
 [display]
 show_assignees = true
+show_close_button = true
 show_due_date = true
 show_epic = true
 show_labels = true

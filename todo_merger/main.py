@@ -80,6 +80,17 @@ def mark_as_seen() -> Response:
     return redirect("/")
 
 
+@main.route("/close", methods=["GET"])
+def close() -> Response:
+    """Close an issue"""
+
+    issue = request.args.get("issue", "").split(",")
+
+    add_to_seen_issues(issues=issue)
+
+    return redirect("/")
+
+
 @main.route("/new", methods=["GET"])
 def new_form() -> str:
     """Page form to create new issues"""
