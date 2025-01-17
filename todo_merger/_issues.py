@@ -29,6 +29,7 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
     ref: str = ""
     service: str = ""
     title: str = ""
+    todolist: bool = False
     uid: str = ""
     updated_at_display: str = ""
     updated_at: datetime = field(default_factory=datetime.now)
@@ -353,14 +354,17 @@ def prioritize_issues(
     return sorted(issues, key=sort_key)
 
 
-def apply_user_issue_ranking(
-    issues: list[IssueItem], ranking_dict: dict[str, dict[str, int | bool]]
+def apply_user_issue_config(
+    issues: list[IssueItem], issue_config_dict: dict[str, dict[str, int | bool]]
 ) -> list[IssueItem]:
-    """Rank list of issues based on user configuration"""
+    """Apply local user configuration to issues"""
     for issue in issues:
-        if issue.uid in ranking_dict:
-            issue.rank = ranking_dict[issue.uid]["rank"]
-            logging.debug("Apply rank %s to issue %s (%s)", issue.rank, issue.uid, issue.title)
+        if issue.uid in issue_config_dict:
+            issue.rank = issue_config_dict[issue.uid].get("rank", ISSUE_RANKING_TABLE["normal"])
+            logging.debug("Applied rank %s to issue %s (%s)", issue.rank, issue.uid, issue.title)
+            if issue_config_dict[issue.uid].get("todolist", False):
+                logging.debug("Put issue %s on todo list (%s)", issue.uid, issue.title)
+                issue.todolist = True
 
     return issues
 

@@ -10,7 +10,7 @@ from ._issues import (
     ISSUE_RANKING_TABLE,
     IssueItem,
     IssuesStats,
-    apply_user_issue_ranking,
+    apply_user_issue_config,
     get_all_issues,
     get_issues_stats,
     prioritize_issues,
@@ -38,7 +38,7 @@ def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dic
     issues = prioritize_issues(issues)
     # Issues custom config (ranking)
     config = read_issues_config()
-    issues = apply_user_issue_ranking(issues=issues, ranking_dict=config)
+    issues = apply_user_issue_config(issues=issues, issue_config_dict=config)
     # Stats
     stats = get_issues_stats(issues)
 
@@ -60,12 +60,38 @@ def set_ranking(issue: str, rank: str) -> None:
 
     # Check if new ranking is the same as old -> reset to default
     if issue in config and config.get(issue, {}).get("rank") == rank_int:
-        logging.info("Resetting issue '%s' by removing it from issues configuration", issue)
-        config.pop(issue)
+        logging.info("Resetting ranking for issue '%s'", issue)
+        config[issue].pop("rank", None)
     # Setting new ranking value
     else:
         logging.info("Setting rank of issue '%s' to %s (%s)", issue, rank, rank_int)
         config[issue]["rank"] = rank_int
+
+    # Update config file
+    write_issues_config(issues_config=config)
+
+
+def set_todolist(issue: str, state: str | bool) -> None:
+    """Add or remove an issue from the personal todo list"""
+    config = read_issues_config()
+
+    # Convert state to bool if str
+    if isinstance(state, str):
+        state = state.lower() in ("yes", "true", "t", "1")
+
+    # Catch undefined issues
+    if not issue:
+        return
+
+    # Create new issue entry if it does not exist
+    if issue not in config:
+        config[issue] = {}
+
+    if state:
+        logging.info("Adding issue '%s' to the todo list", issue)
+    else:
+        logging.info("Removing issue '%s' from the todo list", issue)
+    config[issue]["todolist"] = state
 
     # Update config file
     write_issues_config(issues_config=config)

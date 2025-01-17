@@ -12,6 +12,7 @@ from ._views import (
     private_tasks_repo_get_labels,
     refresh_issues_cache,
     set_ranking,
+    set_todolist,
 )
 
 main = Blueprint("main", __name__)
@@ -54,6 +55,21 @@ def ranking() -> Response:
 
     # Set ranking
     set_ranking(issue=issue, rank=rank_new)
+    # When ranking an issue, it also makes the issue be marked as seen
+    add_to_seen_issues(issues=[issue])
+
+    return redirect("/")
+
+
+@main.route("/todolist", methods=["GET"])
+def todolist() -> Response:
+    """Add or remove issue from todolist"""
+
+    issue = request.args.get("issue", "")
+    state = request.args.get("state", "")
+
+    # Set ranking
+    set_todolist(issue=issue, state=state)
     # When ranking an issue, it also makes the issue be marked as seen
     add_to_seen_issues(issues=[issue])
 
