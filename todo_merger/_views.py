@@ -24,7 +24,9 @@ from ._private_tasks import (
 )
 
 
-def get_issues_and_stats(cache: bool, issue_filter: str | None) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
+def get_issues_and_stats(
+    cache: bool, issue_filter: str | None
+) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
     """Functions to view all issues. Returns: list of IssueItem, a IssueStats
     object, and list of issue IDs"""
     # Get issues (either cache or online)

@@ -192,16 +192,20 @@ def create_app(config_file: str):
         app.config["private_tasks_repo"] = private_tasks_repo_config
         # Find the GitHub/GitLab service object that is configured for the private tasks repo
         try:
-            app.config["private_tasks_repo"]["service"], app.config["private_tasks_repo"]["login"] = app.config[
-                "services"
-            ][app.config["private_tasks_repo"]["service"]]
+            (
+                app.config["private_tasks_repo"]["service"],
+                app.config["private_tasks_repo"]["login"],
+            ) = app.config["services"][app.config["private_tasks_repo"]["service"]]
         except KeyError:
             logging.critical(
-                "The 'private-tasks-repo' section in the config file refers to a service that is not defined"
+                "The 'private-tasks-repo' section in the config file refers to "
+                "a service that is not defined"
             )
             sys.exit(1)
     else:
-        logging.info("No 'private-tasks-repo' section found in config file. Disabling this functionality")
+        logging.info(
+            "No 'private-tasks-repo' section found in config file. Disabling this functionality"
+        )
         app.config["private_tasks_repo"] = None
 
     # Print app config in DEBUG

@@ -368,6 +368,7 @@ def apply_user_issue_config(
 
     return issues
 
+
 def apply_issue_filter(issues: list[IssueItem], issue_filter: str | None) -> list[IssueItem]:
     """Apply issue filter to issues"""
     if not issue_filter:
