@@ -49,6 +49,7 @@ parser.add_argument(
 parser.add_argument(
     "-p", "--pidfile", help="Path to the PID file (in daemon mode)", default=PIDFILE
 )
+parser.add_argument("--port", help="Port the application runs on", type=int, default=8636)
 parser.add_argument(
     "-v",
     "--verbose",
@@ -184,24 +185,28 @@ def create_app(config_file: str):
     ):
         app.config["display"][display_cfg] = app.config["display"].get(display_cfg, True)
 
-    # Get personal-todo-repo config
-    if todo_repo_config := get_app_config(
-        config_file, "personal-todo-repo", warn_on_missing_key=False
+    # Get private-tasks-repo config
+    if private_tasks_repo_config := get_app_config(
+        config_file, "private-tasks-repo", warn_on_missing_key=False
     ):
-        app.config["todo_repo"] = todo_repo_config
-        # Find the GitHub/GitLab service object that is configured for the personal ToDo repo
+        app.config["private_tasks_repo"] = private_tasks_repo_config
+        # Find the GitHub/GitLab service object that is configured for the private tasks repo
         try:
-            app.config["todo_repo"]["service"], app.config["todo_repo"]["login"] = app.config[
-                "services"
-            ][app.config["todo_repo"]["service"]]
+            (
+                app.config["private_tasks_repo"]["service"],
+                app.config["private_tasks_repo"]["login"],
+            ) = app.config["services"][app.config["private_tasks_repo"]["service"]]
         except KeyError:
             logging.critical(
-                "The 'todo-repo' section in the config file refers to a service that is not defined"
+                "The 'private-tasks-repo' section in the config file refers to "
+                "a service that is not defined"
             )
             sys.exit(1)
     else:
-        logging.info("No 'todo-repo' section found in config file. Disabling this functionality")
-        app.config["todo_repo"] = None
+        logging.info(
+            "No 'private-tasks-repo' section found in config file. Disabling this functionality"
+        )
+        app.config["private_tasks_repo"] = None
 
     # Print app config in DEBUG
     logging.debug("App config: %s", app.config)
@@ -214,10 +219,10 @@ def create_app(config_file: str):
     return app
 
 
-def run_server(config_file: str):
+def run_server(config_file: str, port: int):
     """Run the Flask server"""
     app = create_app(config_file=config_file)
-    app.run(port=8636)
+    app.run(port=port)
 
 
 def main():
@@ -253,6 +258,6 @@ def main():
             logger.addHandler(logging.FileHandler(args.logfile))
 
             # Run server
-            run_server(config_file=args.config_file)
+            run_server(config_file=args.config_file, port=args.port)
     else:
-        run_server(config_file=args.config_file)
+        run_server(config_file=args.config_file, port=args.port)

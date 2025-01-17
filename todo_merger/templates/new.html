@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1 class="title">
-  Create new ToDo
+  Create new private tasks
 </h1>
 
 {# Show flash messages #}
@@ -11,13 +11,13 @@
 <form method="POST">
   <fieldset>
     <label>
-      ToDo Title
-      <input name="issue_title" placeholder="Title of new todo item" autofocus />
+      Task Title
+      <input name="issue_title" placeholder="Title of the new task" autofocus />
     </label>
   </fieldset>
 
   <fieldset>
-    <legend>Available Labels</legend>
+    <legend>Available labels in your private tasks repo:</legend>
     {% for label, color in labels.items() %}
     <label {% if colored_labels %}style="color: {{ color }}" {% endif %}>
       <input type="checkbox" name="labels" value="{{ label }}" />
@@ -27,7 +27,7 @@
   </fieldset>
 
   <div class="grid">
-    <input type="submit" name="submit_and_new" value="Submit and create new issue" />
+    <input type="submit" name="submit_and_new" value="Submit and create new task" />
     <input type="submit" name="submit_and_index" value="Submit and return to overview" class="secondary" />
     <input type="submit" name="cancel" value="Cancel" class="cancel" />
   </div>

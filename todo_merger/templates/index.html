@@ -25,10 +25,10 @@
 {%- endif %}
 
 <div class="action-buttons">
-  {%- if personal_todo_repo_configured %}
+  {%- if private_private_tasks_repo_configured %}
   <a href="/new">
     <button class="secondary small">
-      <i class="fa-solid fa-plus"></i> Create new personal ToDo
+      <i class="fa-solid fa-plus"></i> Create new private task
     </button>
   </a>
   {%- endif %}
@@ -37,15 +37,29 @@
       <i class="fa-solid fa-rotate-right"></i> Reload all issues
     </button>
   </a>
+  {%- if issue_filter %}
+  <a href="/">
+    <button class="secondary small">
+      <i class="fa-solid fa-filter"></i> Clear filter
+    </button>
+  </a>
+  {%- else %}
+  <a href="/?filter=todolist">
+    <button class="secondary small">
+      <i class="fa-solid fa-clipboard-list"></i> Show todo list
+    </button>
+  </a>
+  {%- endif %}
 </div>
 
 {%- for issue in issues|sort(attribute="rank") %}
 <div class="issue" id="{{ issue.uid }}">
   <div class="rank">
     <!-- Rank: {{ issue.rank }} -->
-    <a href="/ranking?issue={{ issue.uid }}&rank=pin" class="pin {% if issue.rank == -1 %}enabled{% endif %}"><i class="fa-solid fa-thumbtack"></i></a>
-    <a href="/ranking?issue={{ issue.uid }}&rank=high" class="high {% if issue.rank == 1 %}enabled{% endif %}"><i class="fa-solid fa-up-long"></i></a>
-    <a href="/ranking?issue={{ issue.uid }}&rank=low" class="low {% if issue.rank == 99 %}enabled{% endif %}"><i class="fa-solid fa-down-long"></i></a>
+    <a href="/ranking?issue={{ issue.uid }}&rank=pin" class="pin {% if issue.rank == -1 %}enabled{% endif %}" title="Toggle pin issue"><i class="fa-solid fa-thumbtack"></i></a>
+    <a href="/ranking?issue={{ issue.uid }}&rank=high" class="high {% if issue.rank == 1 %}enabled{% endif %}" title="Increase priority"><i class="fa-solid fa-up-long"></i></a>
+    <a href="/ranking?issue={{ issue.uid }}&rank=low" class="low {% if issue.rank == 99 %}enabled{% endif %}" title="Decrease priority"><i class="fa-solid fa-down-long"></i></a>
+    <a href="/todolist?issue={{ issue.uid }}&state={% if issue.todolist %}false{% else %}true{% endif %}" class="todo {% if issue.todolist %}enabled{% endif %}" title="Toggle ToDo list"><i class="fa-solid fa-clipboard-list"></i></a>
   </div>
   <div>
     {# First line: Icon, Title and Service #}
@@ -100,7 +114,9 @@
     </div>
   </div>
   <div class="markseen">
-    <a href="/mark-as-seen?issues={{ issue.uid }}" title="Mark issue as seen"><button><i class="fa-solid fa-check"></i> Mark as seen</button></a>
+    <a href="/mark-as-seen?issues={{ issue.uid }}" title="Mark issue as seen">
+      <button><i class="fa-solid fa-check"></i> Mark as seen</button>
+    </a>
   </div>
 </div>
 {%- endfor %}
