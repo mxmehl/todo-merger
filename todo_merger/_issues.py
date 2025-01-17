@@ -354,12 +354,12 @@ def prioritize_issues(
 
 
 def apply_user_issue_ranking(
-    issues: list[IssueItem], ranking_dict: dict[str, int]
+    issues: list[IssueItem], ranking_dict: dict[str, dict[str, int | bool]]
 ) -> list[IssueItem]:
     """Rank list of issues based on user configuration"""
     for issue in issues:
         if issue.uid in ranking_dict:
-            issue.rank = ranking_dict[issue.uid]
+            issue.rank = ranking_dict[issue.uid]["rank"]
             logging.debug("Apply rank %s to issue %s (%s)", issue.rank, issue.uid, issue.title)
 
     return issues

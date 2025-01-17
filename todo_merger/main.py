@@ -87,7 +87,9 @@ def new_form() -> str:
     labels = private_tasks_repo_get_labels()
 
     return render_template(
-        "new.html", labels=labels, colored_labels=current_app.config["private_tasks_repo"]["colored_labels"]
+        "new.html",
+        labels=labels,
+        colored_labels=current_app.config["private_tasks_repo"]["colored_labels"],
     )
 
 

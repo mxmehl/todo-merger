@@ -48,20 +48,27 @@ def get_issues_and_stats(cache: bool) -> tuple[list[IssueItem], IssuesStats, dic
 def set_ranking(issue: str, rank: str) -> None:
     """Set new ranking of individual issue inside of the issues configuration file"""
     rank_int = ISSUE_RANKING_TABLE.get(rank, ISSUE_RANKING_TABLE["normal"])
-    config = read_issues_config()
+    config: dict[str, dict[str, int | bool]] = read_issues_config()
 
-    if issue:
-        # Check if new ranking is the same as old -> reset to default
-        if issue in config and config.get(issue) == rank_int:
-            logging.info("Resetting issue '%s' by removing it from issues configuration", issue)
-            config.pop(issue)
-        # Setting new ranking value
-        else:
-            logging.info("Setting rank of issue '%s' to %s (%s)", issue, rank, rank_int)
-            config[issue] = rank_int
+    # Catch undefined issues
+    if not issue:
+        return
 
-        # Update config file
-        write_issues_config(issues_config=config)
+    # Create new issue entry if it does not exist
+    if issue not in config:
+        config[issue] = {}
+
+    # Check if new ranking is the same as old -> reset to default
+    if issue in config and config.get(issue, {}).get("rank") == rank_int:
+        logging.info("Resetting issue '%s' by removing it from issues configuration", issue)
+        config.pop(issue)
+    # Setting new ranking value
+    else:
+        logging.info("Setting rank of issue '%s' to %s (%s)", issue, rank, rank_int)
+        config[issue]["rank"] = rank_int
+
+    # Update config file
+    write_issues_config(issues_config=config)
 
 
 def refresh_issues_cache() -> None:
