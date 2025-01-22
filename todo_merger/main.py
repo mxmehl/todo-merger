@@ -59,7 +59,7 @@ def ranking() -> Response:
     # Set ranking
     set_ranking(issue=issue, rank=rank_new)
     # When ranking an issue, it also makes the issue be marked as seen
-    add_to_seen_issues(issues=[issue])
+    add_to_seen_issues(new_unseen_issues=[issue])
 
     return redirect(request.referrer)
 
@@ -74,7 +74,7 @@ def todolist() -> Response:
     # Set ranking
     set_todolist(issue=issue, state=state)
     # When ranking an issue, it also makes the issue be marked as seen
-    add_to_seen_issues(issues=[issue])
+    add_to_seen_issues(new_unseen_issues=[issue])
 
     return redirect(request.referrer)
 
@@ -94,7 +94,7 @@ def mark_as_seen() -> Response:
 
     issues = request.args.get("issues", "").split(",")
 
-    add_to_seen_issues(issues=issues)
+    add_to_seen_issues(new_unseen_issues=issues)
 
     return redirect("/")
 
