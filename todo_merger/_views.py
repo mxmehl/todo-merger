@@ -4,7 +4,12 @@ import logging
 
 from flask import current_app
 
-from ._cache import get_unseen_issues, read_issues_cache, write_issues_cache
+from ._cache import (
+    get_unseen_issues,
+    read_issues_cache,
+    update_last_seen,
+    write_issues_cache,
+)
 from ._config import read_issues_config, write_issues_config
 from ._issues import (
     ISSUE_RANKING_TABLE,
@@ -33,8 +38,12 @@ def get_issues_and_stats(
     if cache:
         issues = read_issues_cache()
     else:
+        # Get all issues from the services
         issues = get_all_issues()
+        # Update cache file
         write_issues_cache(issues=issues)
+        # Update last_seen flag in seen issues cache
+        update_last_seen()
     # Get previously unseen issues
     new_issues = get_unseen_issues(issues=issues)
     # Default prioritization

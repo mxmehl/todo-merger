@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from os.path import join
 
 from platformdirs import user_cache_dir
@@ -10,9 +10,27 @@ from platformdirs import user_cache_dir
 from ._issues import IssueItem
 
 
-def _read_cache_file(filename: str) -> list[dict | str]:
-    """Return a JSON file from the cache directory"""
+def _read_cache_file(
+    filename: str, instance: str = "list"
+) -> list[dict] | dict[str, dict[str, int]]:
+    """
+    Return a JSON file from the cache directory.
+
+    Args:
+        filename (str): The name of the cache file to read.
+
+        instance (str): The type of the expected return value. If "dict", an
+        empty dictionary is returned in case of errors. Otherwise, an empty list
+        is returned.
+
+    Returns:
+        list | dict: The content of the JSON file as a list of dictionaries or a
+        dictionary of dictionaries with integer values. Returns an empty list or
+        dictionary if the file is not found or cannot be read.
+    """
     cache_file = join(user_cache_dir("todo-merger", ensure_exists=True), filename)
+
+    empty_return: list | dict = {} if instance == "dict" else []
 
     logging.debug("Reading cache file %s", cache_file)
     try:
@@ -25,15 +43,14 @@ def _read_cache_file(filename: str) -> list[dict | str]:
             "Will ignore any cache.",
             cache_file,
         )
-        return []
+        return empty_return
 
     except FileNotFoundError:
         logging.debug(
             "Cache file '%s' has not been found. Initializing a new empty one.",
             cache_file,
         )
-
-        return []
+        return empty_return
 
 
 def _write_cache_file(filename: str, content: dict | list) -> None:
@@ -91,7 +108,9 @@ def get_cache_status(cache_timer: None | datetime, timeout_seconds: int) -> bool
 def get_unseen_issues(issues: list[IssueItem]) -> dict[str, str]:
     """Return a list of issue IDs that haven't been seen before"""
     # Read seen file
-    seen_issues_cached: list[str] = _read_cache_file(filename="seen-issues.json")  # type: ignore
+    seen_issues_cached: dict[str, dict[str, int]] = _read_cache_file(
+        filename="seen-issues.json", instance="dict"
+    )  # type: ignore
 
     unseen_issues = {}
 
@@ -103,16 +122,33 @@ def get_unseen_issues(issues: list[IssueItem]) -> dict[str, str]:
     return unseen_issues
 
 
-def add_to_seen_issues(issues: list[str]) -> None:
+def add_to_seen_issues(new_unseen_issues: list[str]) -> None:
     """Add one or multiple issues to the seen issues list"""
 
     # Read seen file
-    seen_issues_cached: list[str] = _read_cache_file(filename="seen-issues.json")  # type: ignore
+    seen_issues_cached: dict[str, dict[str, int]] = _read_cache_file(
+        filename="seen-issues.json", instance="dict"
+    )  # type: ignore
 
     # Extend seen issues with new list
-    for issue in issues:
-        logging.debug("Marking issue %s as seen", issue)
-        seen_issues_cached.append(issue)
+    for new_issue in new_unseen_issues:
+        logging.debug("Marking issue %s as seen", new_issue)
+        seen_issues_cached[new_issue] = {"first_seen": int(datetime.now(timezone.utc).timestamp())}
 
     # Update file
+    _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)
+
+
+def update_last_seen() -> None:
+    """Update the last_seen flag of an issue in the cache"""
+    issues_cache: list[dict] = _read_cache_file(filename="issues.json")  # type: ignore
+    seen_issues_cached: dict[str, dict[str, int]] = _read_cache_file(
+        filename="seen-issues.json", instance="dict"
+    )  # type: ignore
+
+    logging.debug("Updating last_seen flag for all %s issues in cache", len(issues_cache))
+    for issue in issues_cache:
+        uid = issue.get("uid", "")
+        seen_issues_cached[uid]["last_seen"] = int(datetime.now(timezone.utc).timestamp())
+
     _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)
