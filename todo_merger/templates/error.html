@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Error
+</h1>
+
+{%- include "flash.html" %} {# Show flash messages #}
+
+<p>
+  <a href="/">
+    <button class="secondary small">Back to home</button>
+  </a>
+</p>
+
+{% endblock %}

@@ -33,7 +33,13 @@ def index() -> str:
     if not cache:
         current_app.config["current_cache_timer"] = datetime.now()
 
-    issues, stats, new_issues = get_issues_and_stats(cache=cache, issue_filter=issue_filter)
+    try:
+        issues, stats, new_issues = get_issues_and_stats(cache=cache, issue_filter=issue_filter)
+    except Exception as ex:  # pylint: disable=broad-except
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        flash(message, "error")
+        return render_template("error.html")
 
     # Find out if private tasks repo is configured
     private_private_tasks_repo_configured = current_app.config.get("private_tasks_repo", None)
