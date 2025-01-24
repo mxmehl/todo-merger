@@ -149,6 +149,9 @@ def update_last_seen() -> None:
     logging.debug("Updating last_seen flag for all %s issues in cache", len(issues_cache))
     for issue in issues_cache:
         uid = issue.get("uid", "")
-        seen_issues_cached[uid]["last_seen"] = int(datetime.now(timezone.utc).timestamp())
+        if uid in seen_issues_cached:
+            seen_issues_cached[uid]["last_seen"] = int(datetime.now(timezone.utc).timestamp())
+        else:
+            logging.debug("Issue %s not found in seen issues cache", uid)
 
     _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)
