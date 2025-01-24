@@ -247,7 +247,7 @@ def main():
             )
 
     # Start app
-    print("ToDo Merger will be available on http://localhost:8636")
+    print(f"ToDo Merger will be available on http://localhost:{args.port}")
     if args.daemon:
         if daemon is None:
             sys.exit(
