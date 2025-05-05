@@ -31,6 +31,7 @@ pylint = "^3.2.5"
 black = "^24.4.2"
 isort = "^5.13.2"
 bump-my-version = "^0.26.0"
+h11 = "^0.16.0"
 
 [build-system]
 requires = ["poetry-core"]
