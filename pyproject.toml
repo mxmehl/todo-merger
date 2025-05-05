@@ -21,7 +21,7 @@ python-gitlab = "^5.0.0"
 libsass = "^0.23.0"
 toml = "^0.10.2"
 platformdirs = "^4.2.2"
-setuptools = "^71.0.3"
+setuptools = "^80.0.0"
 python-daemon = "^3.0.1"
 python-dateutil = "^2.9.0.post0"
 
