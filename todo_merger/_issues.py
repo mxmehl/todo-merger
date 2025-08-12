@@ -4,13 +4,13 @@ import hashlib
 import logging
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
+from typing import Any
 from urllib.parse import urlparse
 
 from dateutil import parser
 from flask import current_app
 from github import AuthenticatedUser, Github, Issue, PaginatedList
 from gitlab import Gitlab
-from gitlab.base import RESTObject, RESTObjectList
 
 ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 
@@ -168,9 +168,7 @@ def _time_ago(dt):
 # API TO IssueItem DATACLASS
 
 
-def _import_gitlab_issues(
-    issues: RESTObjectList | list[RESTObject], myuser: str, instance_id: str
-) -> list[IssueItem]:
+def _import_gitlab_issues(issues: list[Any], myuser: str, instance_id: str) -> list[IssueItem]:
     """Create a list of IssueItem from the GitLab API results"""
     issueitems: list[IssueItem] = []
     for issue in issues:
@@ -200,7 +198,7 @@ def _import_gitlab_issues(
 
 
 def _import_github_issues(
-    issues: PaginatedList.PaginatedList[Issue.Issue], myuser: str
+    issues: PaginatedList.PaginatedList[Issue.Issue] | Any, myuser: str
 ) -> list[IssueItem]:
     """Create a list of IssueItem from the GitHub API results"""
     issueitems: list[IssueItem] = []
