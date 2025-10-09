@@ -15,23 +15,22 @@ todo-merger = "todo_merger.__init__:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-flask = "^3.0.3"
-pygithub = "^2.3.0"
-python-gitlab = "^6.0.0"
+flask = "^3.1.2"
+pygithub = "^2.8.1"
+python-gitlab = "^6.4.0"
 libsass = "^0.23.0"
 toml = "^0.10.2"
-platformdirs = "^4.2.2"
-setuptools = "^80.0.0"
-python-daemon = "^3.0.1"
+platformdirs = "^4.5.0"
+setuptools = "^80.9.0"
+python-daemon = "^3.1.2"
 python-dateutil = "^2.9.0.post0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.17.1"
-pylint = "^3.2.5"
-black = "^25.0.0"
-isort = "^6.0.0"
-bump-my-version = "^1.0.0"
-h11 = "^0.16.0"
+mypy = "^1.18.2"
+pylint = "^3.3.9"
+black = "^25.9.0"
+isort = "^6.1.0"
+bump-my-version = "^1.2.4"
 
 [build-system]
 requires = ["poetry-core"]
