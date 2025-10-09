@@ -14,6 +14,8 @@ from gitlab import Gitlab
 from platformdirs import user_log_dir, user_runtime_dir
 from sassutils.wsgi import SassMiddleware
 
+from ._msplanner import MSPlannerFile
+
 try:
     import daemon
     import daemon.pidfile
@@ -86,10 +88,10 @@ def configure_logger(args) -> logging.Logger:
 
 def load_app_services_config(
     config_file: str, section: str = "services"
-) -> dict[str, tuple[str, Github | Gitlab]]:
+) -> dict[str, tuple[str, Github | Gitlab | MSPlannerFile]]:
     """Load the app config, handle service logins, and return objects"""
     app_config: dict[str, dict[str, str]] = get_app_config(config_file, section)
-    service_objects: dict[str, tuple[str, Github | Gitlab]] = {}
+    service_objects: dict[str, tuple[str, Github | Gitlab | MSPlannerFile]] = {}
 
     for name, cfg in app_config.items():
         service = cfg.get("service", "")
@@ -114,10 +116,13 @@ def load_app_services_config(
             )
             sys.exit(1)
 
+        loginobj: Github | Gitlab | MSPlannerFile
         if service == "github":
             loginobj = github_login(token)
         elif service == "gitlab":
             loginobj = gitlab_login(token, url)  # type: ignore
+        elif service == "msplanner-file":
+            loginobj = MSPlannerFile(cfg.get("file", ""))
         else:
             logging.critical("The config section %s contains an unknown 'service'", name)
             sys.exit(1)

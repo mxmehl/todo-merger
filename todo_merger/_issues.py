@@ -12,6 +12,8 @@ from flask import current_app
 from github import AuthenticatedUser, Github, Issue, PaginatedList
 from gitlab import Gitlab
 
+from ._msplanner import MSPlannerFile
+
 ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 
 
@@ -58,6 +60,7 @@ class IssuesStats:  # pylint: disable=too-many-instance-attributes
     total: int = 0
     gitlab: int = 0
     github: int = 0
+    msplanner: int = 0
     pulls: int = 0
     issues: int = 0
     due_dates_total: int = 0
@@ -228,6 +231,36 @@ def _import_github_issues(
     return issueitems
 
 
+def _import_msplannerfile_issues(issues: list[dict]) -> list[IssueItem]:
+    """Create a list of IssueItem from the MS Planner file"""
+    issueitems: list[IssueItem] = []
+    for issue in issues:
+        if issue.get("completedDateTime", False):
+            continue
+        d = IssueItem()
+        d.import_values(
+            assignee_users="",
+            due_date=issue.get("dueDateTime", "")[:10],
+            epic_title="",
+            labels=[],
+            milestone_title="",
+            pull="",
+            ref="",
+            service="msplanner",
+            title=issue.get("title", ""),
+            uid=f"msplanner-{issue.get('id', '')}",
+            updated_at=issue.get("createdDateTime", ""),
+            web_url=(
+                "https://planner.cloud.microsoft/webui/plan/"
+                f"{issue.get('planId', '')}/view/board/task/{issue.get('id', '')}"
+            ),
+        )
+        d.fill_remaining_fields()
+        issueitems.append(d)
+
+    return issueitems
+
+
 # GET ISSUES FROM SERVICES
 
 
@@ -284,6 +317,15 @@ def github_get_issues(github: Github) -> list[IssueItem]:
     return issues
 
 
+def msplannerfile_get_issues(msplannerfile: MSPlannerFile) -> list[IssueItem]:
+    """Get all issues assigned to authenticated user"""
+    issues: list[IssueItem] = []
+
+    issues.extend(_import_msplannerfile_issues(issues=msplannerfile.data))
+
+    return issues
+
+
 def get_all_issues() -> list[IssueItem]:
     """Get all issues from the supported services"""
     issues: list[IssueItem] = []
@@ -294,6 +336,11 @@ def get_all_issues() -> list[IssueItem]:
         elif service[0] == "gitlab":
             logging.info("Getting assigned GitLab issues for %s", name)
             issues.extend(gitlab_get_issues(service[1]))
+        elif service[0] == "msplanner-file":
+            logging.info("Getting assigned MS Planner tasks for %s", name)
+            issues.extend(msplannerfile_get_issues(service[1]))
+        else:
+            print(f"Service {service[0]} not supported for fetching issues")
 
     return issues
 

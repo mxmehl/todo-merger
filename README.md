@@ -1,7 +1,6 @@
 # ToDo Merger
 
-Get an overview of all issues assigned to you on GitHub and one or more GitLab
-instances.
+Get an overview of all issues assigned to you on GitHub, one or more GitLab instances, or local exports of Microsoft Planner tasks.
 
 Very early stage, contributions and ideas are welcome!
 

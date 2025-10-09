@@ -10,7 +10,7 @@
 <p>
   ℹ️ <strong>Overview</strong>:
   {{ stats.total }} items, {{ stats.issues }} issues and {{ stats.pulls }} PRs/MRs.
-  {{ stats.gitlab }} from GitLab, {{ stats.github }} from GitHub.
+  {{ stats.gitlab }} from GitLab, {{ stats.github }} from GitHub, {{ stats.msplanner }} from MS Planner.
   {{ stats.due_dates_total }} have due dates, {{ stats.milestones_total }} milestones, and {{ stats.epics_total }} epics.
 </p>
 
@@ -79,8 +79,8 @@
       <i class="fa-brands fa-square-gitlab" title="GitLab"></i>
       {%- elif issue.service == "github" %}
       <i class="fa-brands fa-square-github" title="GitHub"></i>
-      {%- elif issue.service == "todo" %}
-      <i class="fa-solid fa-arrow-up-right-from-square" title="To Do"></i>
+      {%- elif issue.service == "msplanner" %}
+      <i class="fa-solid fa-square-check" title="MS Planner"></i>
       {%- endif %}
       {%- endif %}
     </div>
