@@ -253,6 +253,7 @@ def main():
 
     # Start app
     print(f"ToDo Merger will be available on http://localhost:{args.port}")
+    logging.info("Config file: %s", args.config_file)
     if args.daemon:
         if daemon is None:
             sys.exit(
