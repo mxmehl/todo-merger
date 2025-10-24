@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todo-merger"
-version = "1.2.0"
+version = "1.2.1"
 description = "Provide an overview of your assigned issues on GitLab, GitLab and Microsoft Planner"
 repository = "https://github.com/mxmehl/todo-merger"
 authors = ["Max Mehl <mail@mehl.mx>"]
