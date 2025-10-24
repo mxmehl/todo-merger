@@ -1,21 +1,37 @@
 """GitHub issue fetching functions"""
 
 from typing import Any
+from urllib.parse import urlparse
 
 from github import AuthenticatedUser, Github, Issue, PaginatedList
 
-from ._issues import IssueItem, _convert_to_datetime, _gh_url_to_ref, _sort_assignees
+from ._helpers import convert_to_datetime, sort_assignees
+from ._types import IssueItem
+
+
+def _gh_url_to_ref(url: str):
+    """Convert a GitHub issue URL to a ref"""
+    url = urlparse(url).path
+    url = url.strip("/")
+
+    # Run replacements
+    replacements = {"/issues/": "#", "/pull/": "#"}
+    for search, replacement in replacements.items():
+        url = url.replace(search, replacement)
+
+    return url
 
 
 def _import_github_issues(
     issues: PaginatedList.PaginatedList[Issue.Issue] | Any, myuser: str
 ) -> list[IssueItem]:
     """Create a list of IssueItem from the GitHub API results"""
+    # pylint: disable=duplicate-code
     issueitems: list[IssueItem] = []
     for issue in issues:
         d = IssueItem()
         d.import_values(
-            assignee_users=_sort_assignees(
+            assignee_users=sort_assignees(
                 [u.login for u in issue.assignees if issue.assignees], myuser
             ),
             due_date="",
@@ -29,7 +45,7 @@ def _import_github_issues(
             service="github",
             title=issue.title,
             uid=f"github-{issue.id}",
-            updated_at=_convert_to_datetime(issue.updated_at),
+            updated_at=convert_to_datetime(issue.updated_at),
             web_url=issue.html_url,
         )
         d.fill_remaining_fields()

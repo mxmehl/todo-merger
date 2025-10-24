@@ -5,7 +5,8 @@ from typing import Any
 
 from gitlab import Gitlab
 
-from ._issues import IssueItem, _convert_to_datetime, _sort_assignees
+from ._helpers import convert_to_datetime, sort_assignees
+from ._types import IssueItem
 
 
 def _import_gitlab_issues(issues: list[Any], myuser: str, instance_id: str) -> list[IssueItem]:
@@ -14,7 +15,7 @@ def _import_gitlab_issues(issues: list[Any], myuser: str, instance_id: str) -> l
     for issue in issues:
         d = IssueItem()
         d.import_values(
-            assignee_users=_sort_assignees(
+            assignee_users=sort_assignees(
                 [u["username"] for u in issue.assignees if issue.assignees], myuser
             ),
             due_date=issue.due_date if hasattr(issue, "due_date") else "",
@@ -28,7 +29,7 @@ def _import_gitlab_issues(issues: list[Any], myuser: str, instance_id: str) -> l
             service="gitlab",
             title=issue.title,
             uid=f"gitlab-{instance_id}-{issue.id}",
-            updated_at=_convert_to_datetime(issue.updated_at),
+            updated_at=convert_to_datetime(issue.updated_at),
             web_url=issue.web_url,
         )
         d.fill_remaining_fields()

@@ -83,6 +83,7 @@ def default_config_file_path() -> str:
 
 def get_app_config(config_file: str, key: str = "", warn_on_missing_key: bool = True) -> dict:
     """Return a specific section from the app configuration, or the whole config"""
+    logging.debug("Reading app configuration file %s", config_file)
 
     if not config_file:
         config_file = default_config_file_path()

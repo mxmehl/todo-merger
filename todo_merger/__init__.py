@@ -90,6 +90,7 @@ def load_app_services_config(
     config_file: str, section: str = "services"
 ) -> dict[str, tuple[str, Github | Gitlab | MSPlannerFile]]:
     """Load the app config, handle service logins, and return objects"""
+
     app_config: dict[str, dict[str, str]] = get_app_config(config_file, section)
     service_objects: dict[str, tuple[str, Github | Gitlab | MSPlannerFile]] = {}
 
@@ -254,6 +255,8 @@ def main():
     # Start app
     print(f"ToDo Merger will be available on http://localhost:{args.port}")
     logging.info("Config file: %s", args.config_file)
+    logging.info("Log file: %s", args.logfile)
+    logging.info("PID file: %s", args.pidfile)
     if args.daemon:
         if daemon is None:
             sys.exit(

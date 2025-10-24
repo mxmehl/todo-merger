@@ -1,171 +1,14 @@
 """Handling issues which come in from different sources"""
 
 import logging
-from dataclasses import asdict, dataclass, field, fields
-from datetime import datetime, timezone
-from urllib.parse import urlparse
+from dataclasses import fields
+from datetime import datetime
 
-from dateutil import parser
 from flask import current_app
 
-from todo_merger._github import github_get_issues
-from todo_merger._gitlab import gitlab_get_issues
-from todo_merger._msplanner import msplannerfile_get_issues
+from ._types import IssueItem, IssuesStats
 
 ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
-
-
-@dataclass
-class IssueItem:  # pylint: disable=too-many-instance-attributes
-    """Dataclass holding a single issue"""
-
-    assignee_users: list = field(default_factory=list)
-    due_date: str = ""
-    epic_title: str = ""
-    labels: list = field(default_factory=list)
-    milestone_title: str = ""
-    pull: bool = False
-    rank: int = ISSUE_RANKING_TABLE["normal"]
-    ref: str = ""
-    service: str = ""
-    title: str = ""
-    todolist: bool = False
-    uid: str = ""
-    updated_at_display: str = ""
-    updated_at: datetime = field(default_factory=datetime.now)
-    web_url: str = ""
-
-    def import_values(self, **kwargs):
-        """Import data from a dict"""
-        for attr, value in kwargs.items():
-            setattr(self, attr, value)
-
-    def fill_remaining_fields(self):
-        """Fill remaining fields that have not been imported directly and which
-        are solely derived from attribute values"""
-        # updated_at_display
-        self.updated_at_display = _time_ago(_convert_to_datetime(self.updated_at))
-
-    def convert_to_dict(self):
-        """Return the current dataclass as dict"""
-        return asdict(self)
-
-
-@dataclass
-class IssuesStats:  # pylint: disable=too-many-instance-attributes
-    """Dataclass holding a stats about all issues"""
-
-    total: int = 0
-    gitlab: int = 0
-    github: int = 0
-    msplanner: int = 0
-    pulls: int = 0
-    issues: int = 0
-    due_dates_total: int = 0
-    milestones_total: int = 0
-    epics_total: int = 0
-
-
-# ----------------------------------------
-# HELPER FUNCTIONS
-# ----------------------------------------
-
-
-def _sort_assignees(assignees: list, my_user_name: str) -> str:
-    """Provide a human-readable list of assigned users, treating yourself special"""
-
-    # Remove my user name from assignees list, if present
-    try:
-        assignees.remove(my_user_name)
-    except ValueError:
-        pass
-
-    # If executing user is the only assignee, there is no use in that field
-    if not assignees:
-        return ""
-
-    return f"{', '.join(['Me'] + assignees)}"
-
-
-def _gh_url_to_ref(url: str):
-    """Convert a GitHub issue URL to a ref"""
-    url = urlparse(url).path
-    url = url.strip("/")
-
-    # Run replacements
-    replacements = {"/issues/": "#", "/pull/": "#"}
-    for search, replacement in replacements.items():
-        url = url.replace(search, replacement)
-
-    return url
-
-
-def _replace_none_with_empty_string(obj: IssueItem) -> IssueItem:
-    """Replace None values of a dataclass with an empty string. Makes sorting
-    easier"""
-    for f in fields(obj):
-        value = getattr(obj, f.name)
-        if value is None:
-            setattr(obj, f.name, "")
-
-    return obj
-
-
-def _convert_to_datetime(timestamp: str | datetime) -> datetime:
-    """
-    Convert a timestamp string or datetime to a timezone-aware datetime object.
-
-    Args:
-        timestamp (str | datetime): The timestamp string to convert, or the
-        datetime object to pass through
-
-    Returns:
-        datetime: A timezone-aware datetime object in UTC.
-    """
-    # Handle if timestamp is already datetime object
-    if isinstance(timestamp, datetime):
-        dt = timestamp
-    # Convert str to datetime
-    else:
-        try:
-            # Attempt to parse with dateutil parser
-            dt = parser.isoparse(timestamp)
-
-        except ValueError as exc:
-            raise ValueError(f"Unrecognized timestamp format: {timestamp}") from exc
-
-    # If the datetime object is naive (no timezone), assume UTC
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-
-    return dt.astimezone(timezone.utc)
-
-
-def _time_ago(dt):
-    now = datetime.now(timezone.utc)
-    diff = now - dt
-
-    if diff.days >= 365:
-        years = diff.days // 365
-        display = f"{years} year{'s' if years > 1 else ''} ago"
-    elif diff.days >= 30:
-        months = diff.days // 30
-        display = f"{months} month{'s' if months > 1 else ''} ago"
-    elif diff.days >= 7:
-        weeks = diff.days // 7
-        display = f"{weeks} week{'s' if weeks > 1 else ''} ago"
-    elif diff.days > 0:
-        display = f"{diff.days} day{'s' if diff.days > 1 else ''} ago"
-    elif diff.seconds >= 3600:
-        hours = diff.seconds // 3600
-        display = f"{hours} hour{'s' if hours > 1 else ''} ago"
-    elif diff.seconds >= 60:
-        minutes = diff.seconds // 60
-        display = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
-    else:
-        display = "Just now"
-
-    return display
 
 
 # ----------------------------------------
@@ -175,6 +18,12 @@ def _time_ago(dt):
 
 def get_all_issues() -> list[IssueItem]:
     """Get all issues from the supported services"""
+    # Import here to avoid circular dependency
+    # pylint: disable=import-outside-toplevel
+    from ._github import github_get_issues
+    from ._gitlab import gitlab_get_issues
+    from ._msplanner import msplannerfile_get_issues
+
     issues: list[IssueItem] = []
     for name, service in current_app.config["services"].items():
         if service[0] == "github":
@@ -195,6 +44,17 @@ def get_all_issues() -> list[IssueItem]:
 # ----------------------------------------
 # ISSUE PRIORIZATION AND FILTERING
 # ----------------------------------------
+
+
+def _replace_none_with_empty_string(obj: IssueItem) -> IssueItem:
+    """Replace None values of a dataclass with an empty string. Makes sorting
+    easier"""
+    for f in fields(obj):
+        value = getattr(obj, f.name)
+        if value is None:
+            setattr(obj, f.name, "")
+
+    return obj
 
 
 def prioritize_issues(

@@ -3,7 +3,7 @@
 import json
 import logging
 
-from ._issues import IssueItem
+from ._types import IssueItem
 
 
 class MSPlannerFile:  # pylint: disable=too-few-public-methods

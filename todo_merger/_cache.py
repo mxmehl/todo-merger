@@ -29,6 +29,7 @@ def _read_cache_file(
         dictionary if the file is not found or cannot be read.
     """
     cache_file = join(user_cache_dir("todo-merger", ensure_exists=True), filename)
+    logging.debug("Reading cache file %s", cache_file)
 
     empty_return: list | dict = {} if instance == "dict" else []
 
