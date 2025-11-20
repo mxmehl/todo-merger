@@ -1306,14 +1306,14 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-gitlab"
-version = "6.5.0"
+version = "7.0.0"
 description = "The python wrapper for the GitLab REST and GraphQL APIs."
 optional = false
-python-versions = ">=3.9.0"
+python-versions = ">=3.10.0"
 groups = ["main"]
 files = [
-    {file = "python_gitlab-6.5.0-py3-none-any.whl", hash = "sha256:494e1e8e5edd15286eaf7c286f3a06652688f1ee20a49e2a0218ddc5cc475e32"},
-    {file = "python_gitlab-6.5.0.tar.gz", hash = "sha256:97553652d94b02de343e9ca92782239aa2b5f6594c5482331a9490d9d5e8737d"},
+    {file = "python_gitlab-7.0.0-py3-none-any.whl", hash = "sha256:712a6c8c5e79e7e66f6dabb25d8fe7831a6b238d4a5132f8231df6b3b890ceff"},
+    {file = "python_gitlab-7.0.0.tar.gz", hash = "sha256:e4d934430f64efc09e6208b782c61cc0a3389527765e03ffbef17f4323dce441"},
 ]
 
 [package.dependencies]
@@ -1648,4 +1648,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "f97571a02ab9b6f5f7ba7a97344b16883043d33fa72a43871e8e943c590cb8ed"
+content-hash = "5ee683f62aa45ad580701b37d03c6924eb9f647c41804dff934009f2c05da9ef"
