@@ -27,9 +27,9 @@ python-dateutil = "^2.9.0.post0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.18.2"
-pylint = "^3.3.9"
+pylint = "^4.0.0"
 black = "^25.9.0"
-isort = "^6.1.0"
+isort = "^7.0.0"
 bump-my-version = "^1.2.4"
 
 [build-system]
