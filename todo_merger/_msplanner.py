@@ -3,6 +3,7 @@
 import json
 import logging
 
+from ._helpers import convert_to_datetime
 from ._types import IssueItem
 
 
@@ -39,7 +40,7 @@ def _import_msplannerfile_issues(issues: list[dict]) -> list[IssueItem]:
             service="msplanner",
             title=issue.get("title", ""),
             uid=f"msplanner-{issue.get('id', '')}",
-            updated_at=issue.get("createdDateTime", ""),
+            updated_at=convert_to_datetime(issue.get("createdDateTime", "")),
             web_url=(
                 "https://planner.cloud.microsoft/webui/plan/"
                 f"{issue.get('planId', '')}/view/board/task/{issue.get('id', '')}"
