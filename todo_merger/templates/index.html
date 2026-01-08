@@ -52,7 +52,7 @@
   {%- endif %}
 </div>
 
-{%- for issue in issues|sort(attribute="rank") %}
+{%- for issue in issues|sort(attribute="updated_at", reverse=true)|sort(attribute="rank") %}
 <div class="issue" id="{{ issue.uid }}">
   <div class="rank">
     <!-- Rank: {{ issue.rank }} -->
