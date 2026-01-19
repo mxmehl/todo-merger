@@ -1,8 +1,6 @@
 """Handling issues which come in from different sources"""
 
 import logging
-from dataclasses import fields
-from datetime import datetime
 
 from flask import current_app
 
@@ -44,68 +42,6 @@ def get_all_issues() -> list[IssueItem]:
 # ----------------------------------------
 # ISSUE PRIORIZATION AND FILTERING
 # ----------------------------------------
-
-
-def _replace_none_with_empty_string(obj: IssueItem) -> IssueItem:
-    """Replace None values of a dataclass with an empty string. Makes sorting
-    easier"""
-    for f in fields(obj):
-        value = getattr(obj, f.name)
-        if value is None:
-            setattr(obj, f.name, "")
-
-    return obj
-
-
-def prioritize_issues(
-    issues: list[IssueItem], sort_by: list[tuple[str, bool]] | None = None
-) -> list[IssueItem]:
-    """
-    Sorts the list of IssueItem objects based on multiple criteria.
-
-    :param issues: List of IssueItem objects to sort.
-
-    :param sort_by: List of tuples where each tuple contains:
-                    - field name to sort by as a string
-                    - a boolean indicating whether to sort in reverse order
-                      (True for descending, False for ascending)
-
-    :return: Sorted list of IssueItem objects.
-    """
-    if sort_by is None:
-        sort_by = [
-            ("due_date", False),
-            ("milestone_title", True),
-            ("epic_title", True),
-            ("updated_at", True),
-        ]
-
-    logging.info("Sort issues based on %s", sort_by)
-
-    # Replace None with empty string in all tasks
-    issues = [_replace_none_with_empty_string(task) for task in issues]
-
-    def sort_key(issue: IssueItem) -> tuple:
-        # Create a tuple of the field values to sort by, considering the reverse order
-        key: list[tuple[int, str | None]] = []
-        for f, reverse in sort_by:
-            value: str | datetime = getattr(issue, f)
-            # Convert datetime to str
-            if isinstance(value, datetime):
-                value = value.strftime("%s")
-            elif isinstance(value, str):
-                value = value.lower()
-            is_empty: bool = value == ""
-            # Place empty values at the end
-            if is_empty:
-                key.append((1, None))  # `1` indicates an empty value
-            else:
-                if reverse:
-                    value = "".join(chr(255 - ord(char)) for char in value)
-                key.append((0, value))  # `0` indicates a non-empty value
-        return tuple(key)
-
-    return sorted(issues, key=sort_key)
 
 
 def apply_user_issue_config(

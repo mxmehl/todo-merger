@@ -19,7 +19,6 @@ from ._issues import (
     apply_user_issue_config,
     get_all_issues,
     get_issues_stats,
-    prioritize_issues,
 )
 from ._private_tasks import (
     private_tasks_repo_create_github_issue,
@@ -46,8 +45,6 @@ def get_issues_and_stats(
         update_last_seen()
     # Get previously unseen issues
     new_issues = get_unseen_issues(issues=issues)
-    # Default prioritization
-    issues = prioritize_issues(issues)
     # Issues custom config (ranking)
     config = read_issues_config()
     issues = apply_user_issue_config(issues=issues, issue_config_dict=config)

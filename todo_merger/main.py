@@ -1,5 +1,6 @@
 """Main"""
 
+import traceback
 from datetime import datetime
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request
@@ -36,8 +37,8 @@ def index() -> str:
     try:
         issues, stats, new_issues = get_issues_and_stats(cache=cache, issue_filter=issue_filter)
     except Exception as ex:  # pylint: disable=broad-except
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
+        template = "An exception of type {0} occurred. Traceback:<br /><pre>{1}</pre>"
+        message = template.format(type(ex).__name__, traceback.format_exc())
         flash(message, "error")
         return render_template("error.html")
 
