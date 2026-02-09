@@ -1432,14 +1432,14 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-gitlab"
-version = "7.1.0"
+version = "8.0.0"
 description = "The python wrapper for the GitLab REST and GraphQL APIs."
 optional = false
 python-versions = ">=3.10.0"
 groups = ["main"]
 files = [
-    {file = "python_gitlab-7.1.0-py3-none-any.whl", hash = "sha256:8e42030cf27674e7ec9ea1f6d2fedcaaef0a6210f5fa22c80721abaa3a4fec90"},
-    {file = "python_gitlab-7.1.0.tar.gz", hash = "sha256:1c34da3de40ad21675d788136f73d20a60649513e692f52c5a9720434db97c46"},
+    {file = "python_gitlab-8.0.0-py3-none-any.whl", hash = "sha256:c635e6722c5710d35ddadfcf95c362b0aa8de11ab3972bc4f230ebd58a6c49ee"},
+    {file = "python_gitlab-8.0.0.tar.gz", hash = "sha256:03eae5a9d105448796e6c0e192d402c266057e75790cf4f42c143dddf91313ce"},
 ]
 
 [package.dependencies]
@@ -1448,7 +1448,7 @@ requests-toolbelt = ">=1.0.0"
 
 [package.extras]
 autocompletion = ["argcomplete (>=1.10.0,<3)"]
-graphql = ["gql[httpx] (>=3.5.0,<4)"]
+graphql = ["gql[httpx] (>=3.5.0,<5)"]
 yaml = ["PyYaml (>=6.0.1)"]
 
 [[package]]
@@ -1807,4 +1807,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "eb7a985656c55d9074bd08487964599b18e7b9dd1f9a1f5960768ec39894518a"
+content-hash = "acacd2d5ad25f9f0b5ccadd6bcbc550509313da8330750bb2a10696d6cbf8979"
