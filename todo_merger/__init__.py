@@ -7,14 +7,19 @@ import sys
 import uuid
 from importlib.metadata import version
 from os import kill, path
+from pathlib import Path
 
 from flask import Flask
 from github import Github
 from gitlab import Gitlab
 from platformdirs import user_log_dir, user_runtime_dir
-from sassutils.wsgi import SassMiddleware
+from sass_embedded import compile_directory
+from sass_embedded.dart_sass.installer import install as install_dart_sass
 
 from ._msplanner import MSPlannerFile
+
+# from sassutils.wsgi import SassMiddleware
+
 
 try:
     import daemon
@@ -148,18 +153,10 @@ def create_app(config_file: str):
     # Set werkzeug logging level to the global logging level
     logging.getLogger("werkzeug").setLevel(logging.root.level)
 
-    # Settings for SCSS conversion
-    app.wsgi_app = SassMiddleware(  # type: ignore
-        app.wsgi_app,
-        {
-            "todo_merger": {
-                "sass_path": "static/sass",
-                "css_path": "static/css",
-                "wsgi_path": "/static/css",
-                "strip_extension": False,
-            }
-        },
-    )
+    # Configure and compile Sass to CSS
+    install_dart_sass()  # downloads dart to venv
+    projroot = Path(__file__).parent.resolve()
+    compile_directory(projroot / Path("static/sass"), dest=projroot / Path("static/css"))
 
     # Set a secret key for the session
     app.secret_key = str(uuid.uuid4().hex)
