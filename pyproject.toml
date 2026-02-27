@@ -18,12 +18,11 @@ python = "^3.10"
 flask = "^3.1.2"
 pygithub = "^2.8.1"
 python-gitlab = "^8.0.0"
-libsass = "^0.23.0"
 toml = "^0.10.2"
 platformdirs = "^4.5.0"
-setuptools = "^80.9.0"
 python-daemon = "^3.1.2"
 python-dateutil = "^2.9.0.post0"
+sass-embedded = "^0.1.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.18.2"

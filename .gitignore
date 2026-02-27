@@ -181,5 +181,5 @@ pyrightconfig.json
 
 # Local cache, log, build and config files
 config.toml
-*.scss.css*
+custom.css*
 *issues*.json
