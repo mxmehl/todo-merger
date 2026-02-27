@@ -29,7 +29,7 @@ python-dateutil = "^2.9.0.post0"
 mypy = "^1.18.2"
 pylint = "^4.0.0"
 black = "^26.0.0"
-isort = "^7.0.0"
+isort = "^8.0.0"
 bump-my-version = "^1.2.4"
 
 [build-system]
