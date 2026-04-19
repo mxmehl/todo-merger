@@ -1,4 +1,4 @@
-"""Shared type definitions to avoid circular imports"""
+"""Shared type definitions to avoid circular imports."""
 
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
@@ -7,8 +7,8 @@ from ._helpers import convert_to_datetime, time_ago
 
 
 @dataclass
-class IssueItem:  # pylint: disable=too-many-instance-attributes
-    """Dataclass holding a single issue"""
+class IssueItem:
+    """Dataclass holding a single issue."""
 
     assignee_users: list = field(default_factory=list)
     due_date: str = ""
@@ -26,26 +26,26 @@ class IssueItem:  # pylint: disable=too-many-instance-attributes
     updated_at: datetime = field(default_factory=datetime.now)
     web_url: str = ""
 
-    def import_values(self, **kwargs):
-        """Import data from a dict"""
+    def import_values(self, **kwargs: object) -> None:
+        """Import data from a dict."""
         for attr, value in kwargs.items():
             setattr(self, attr, value)
 
-    def fill_remaining_fields(self):
+    def fill_remaining_fields(self) -> None:
         """Fill remaining fields that have not been imported directly and which
-        are solely derived from attribute values"""
-
+        are solely derived from attribute values.
+        """
         # updated_at_display
         self.updated_at_display = time_ago(convert_to_datetime(self.updated_at))
 
-    def convert_to_dict(self):
-        """Return the current dataclass as dict"""
+    def convert_to_dict(self) -> dict:
+        """Return the current dataclass as dict."""
         return asdict(self)
 
 
 @dataclass
-class IssuesStats:  # pylint: disable=too-many-instance-attributes
-    """Dataclass holding a stats about all issues"""
+class IssuesStats:
+    """Dataclass holding a stats about all issues."""
 
     total: int = 0
     gitlab: int = 0

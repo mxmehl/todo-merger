@@ -1,7 +1,7 @@
-"""Main"""
+"""Main."""
 
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request
 from werkzeug.wrappers import Response
@@ -21,8 +21,7 @@ main = Blueprint("main", __name__)
 
 @main.route("/", methods=["GET"])
 def index() -> str:
-    """Index Page"""
-
+    """Index Page."""
     issue_filter = request.args.get("filter", None)
 
     # Find out whether current cache timer is still valid
@@ -32,11 +31,11 @@ def index() -> str:
     )
     # Reset cache timer to now
     if not cache:
-        current_app.config["current_cache_timer"] = datetime.now()
+        current_app.config["current_cache_timer"] = datetime.now(tz=timezone.utc)
 
     try:
         issues, stats, new_issues = get_issues_and_stats(cache=cache, issue_filter=issue_filter)
-    except Exception as ex:  # pylint: disable=broad-except
+    except Exception as ex:  # noqa: BLE001
         template = "An exception of type {0} occurred. Traceback:<br /><pre>{1}</pre>"
         message = template.format(type(ex).__name__, traceback.format_exc())
         flash(message, "error")
@@ -58,8 +57,7 @@ def index() -> str:
 
 @main.route("/ranking", methods=["GET"])
 def ranking() -> Response:
-    """Set ranking"""
-
+    """Set ranking."""
     issue = request.args.get("issue", "")
     rank_new = request.args.get("rank", "")
 
@@ -73,8 +71,7 @@ def ranking() -> Response:
 
 @main.route("/todolist", methods=["GET"])
 def todolist() -> Response:
-    """Add or remove issue from todolist"""
-
+    """Add or remove issue from todolist."""
     issue = request.args.get("issue", "")
     state = request.args.get("state", "")
 
@@ -88,8 +85,7 @@ def todolist() -> Response:
 
 @main.route("/reload", methods=["GET"])
 def reload() -> Response:
-    """Reload all issues and break cache"""
-
+    """Reload all issues and break cache."""
     refresh_issues_cache()
 
     return redirect("/")
@@ -97,8 +93,7 @@ def reload() -> Response:
 
 @main.route("/mark-as-seen", methods=["GET"])
 def mark_as_seen() -> Response:
-    """Mark one or all issues as seen"""
-
+    """Mark one or all issues as seen."""
     issues = request.args.get("issues", "").split(",")
 
     add_to_seen_issues(new_unseen_issues=issues)
@@ -108,8 +103,7 @@ def mark_as_seen() -> Response:
 
 @main.route("/new", methods=["GET"])
 def new_form() -> str:
-    """Page form to create new issues"""
-
+    """Page form to create new issues."""
     labels = private_tasks_repo_get_labels()
 
     return render_template(
@@ -121,8 +115,7 @@ def new_form() -> str:
 
 @main.route("/new", methods=["POST"])
 def new_create() -> Response:
-    """Create a new issue"""
-
+    """Create a new issue."""
     # Upon cancel request, also refresh cache
     if request.form.get("cancel"):
         refresh_issues_cache()

@@ -1,4 +1,4 @@
-"""Login functions"""
+"""Login functions."""
 
 import logging
 import sys
@@ -10,7 +10,7 @@ from ._config import default_config_file_path
 
 
 def github_login(token: str) -> Github:
-    """Login to GitHub with token"""
+    """Login to GitHub with token."""
     if not token:
         logging.critical(
             "You need to provide a token for GitHub. Add that to your configuration file. "
@@ -24,7 +24,7 @@ def github_login(token: str) -> Github:
 
 
 def gitlab_login(token: str, url: str = "https://gitlab.com") -> Gitlab:
-    """Login to GitHub with token"""
+    """Login to GitHub with token."""
     if not token:
         logging.critical(
             "You need to provide a token for GitLab. Add that to your configuration file. "
@@ -36,5 +36,8 @@ def gitlab_login(token: str, url: str = "https://gitlab.com") -> Gitlab:
     g = Gitlab(url=url, private_token=token)
     # Perform login, populates the user attribute
     g.auth()
-    logging.info("Logged into GitLab as %s on %s", g.user.username, url)  # type: ignore
+    if g.user is None:
+        msg = "g.user should be set after auth()"
+        raise RuntimeError(msg)
+    logging.info("Logged into GitLab as %s on %s", g.user.username, url)
     return g

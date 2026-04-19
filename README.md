@@ -37,7 +37,7 @@ pipx upgrade todo-merger
 
 ### Other installation methods
 
-You may also use pure `pip` or `poetry` to install this package.
+You may also use pure `pip` or `uv` to install this package.
 
 
 ## Usage

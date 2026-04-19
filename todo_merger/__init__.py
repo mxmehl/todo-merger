@@ -1,13 +1,15 @@
-"""ToDo Merger: Provide an overview of your assigned issues on GitLab and GitLab"""
+"""ToDo Merger: Provide an overview of your assigned issues on GitLab and GitLab."""
 
 import argparse
 import logging
 import signal
 import sys
+import types
 import uuid
 from importlib.metadata import version
-from os import kill, path
+from os import kill
 from pathlib import Path
+from typing import cast
 
 from flask import Flask
 from github import Github
@@ -16,23 +18,23 @@ from platformdirs import user_log_dir, user_runtime_dir
 from sass_embedded import compile_directory
 from sass_embedded.dart_sass.installer import install as install_dart_sass
 
+from ._auth import github_login, gitlab_login
+from ._config import default_config_file_path, get_app_config
 from ._msplanner import MSPlannerFile
 
 # from sassutils.wsgi import SassMiddleware
 
 
+daemon: types.ModuleType | None = None
 try:
     import daemon
     import daemon.pidfile
 # pwd does not exist on Windows, we cannot daemonize there
 except (ModuleNotFoundError, ImportError):
-    daemon = None
+    pass
 
-from ._auth import github_login, gitlab_login
-from ._config import default_config_file_path, get_app_config
-
-LOGFILE = path.join(user_log_dir("todo-merger", ensure_exists=True), "todo-merger.log")
-PIDFILE = path.join(user_runtime_dir("todo-merger", ensure_exists=True), "todo-merger.pid")
+LOGFILE = str(Path(user_log_dir("todo-merger", ensure_exists=True)) / "todo-merger.log")
+PIDFILE = str(Path(user_runtime_dir("todo-merger", ensure_exists=True)) / "todo-merger.pid")
 
 __version__ = version("todo-merger")
 
@@ -78,11 +80,10 @@ parser_stop = subparsers.add_parser(
 )
 
 
-def configure_logger(args) -> logging.Logger:
-    """Set logging options"""
+def configure_logger(args: argparse.Namespace) -> logging.Logger:
+    """Set logging options."""
     log = logging.getLogger()
     logging.basicConfig(
-        encoding="utf-8",
         format="%(levelname)s in %(module)s: %(message)s",
         level=(logging.DEBUG if args.debug else logging.INFO if args.verbose else logging.WARNING),
         handlers=[logging.StreamHandler()],
@@ -94,8 +95,7 @@ def configure_logger(args) -> logging.Logger:
 def load_app_services_config(
     config_file: str, section: str = "services"
 ) -> dict[str, tuple[str, Github | Gitlab | MSPlannerFile]]:
-    """Load the app config, handle service logins, and return objects"""
-
+    """Load the app config, handle service logins, and return objects."""
     app_config: dict[str, dict[str, str]] = get_app_config(config_file, section)
     service_objects: dict[str, tuple[str, Github | Gitlab | MSPlannerFile]] = {}
 
@@ -126,7 +126,7 @@ def load_app_services_config(
         if service == "github":
             loginobj = github_login(token)
         elif service == "gitlab":
-            loginobj = gitlab_login(token, url)  # type: ignore
+            loginobj = gitlab_login(token, url)
         elif service == "msplanner-file":
             loginobj = MSPlannerFile(cfg.get("file", ""))
         else:
@@ -138,16 +138,14 @@ def load_app_services_config(
     return service_objects
 
 
-# pylint: disable=import-outside-toplevel
-def create_app(config_file: str):
-    """Create Flask App"""
-
+def create_app(config_file: str) -> Flask:
+    """Create Flask App."""
     # Initiate Flask app
     app = Flask(__name__)
     # Reload templates
     app.jinja_env.auto_reload = True
     app.jinja_env.lstrip_blocks = False
-    app.jinja_env.globals["app_version"] = __version__
+    cast("dict", app.jinja_env.globals).update({"app_version": __version__})
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     # Set werkzeug logging level to the global logging level
@@ -215,20 +213,20 @@ def create_app(config_file: str):
     logging.debug("App config: %s", app.config)
 
     # blueprint for app
-    from .main import main as main_blueprint  # pylint: disable=import-error
+    from .main import main as main_blueprint  # noqa: PLC0415
 
     app.register_blueprint(main_blueprint)
 
     return app
 
 
-def run_server(config_file: str, port: int):
-    """Run the Flask server"""
+def run_server(config_file: str, port: int) -> None:
+    """Run the Flask server."""
     app = create_app(config_file=config_file)
     app.run(port=port)
 
 
-def main():
+def main() -> None:
     """Main entry point for running the app."""
     args = parser.parse_args()
 
@@ -238,7 +236,7 @@ def main():
     # Stop app if requested
     if args.command == "stop":
         try:
-            with open(args.pidfile, "r", encoding="utf-8") as pidreader:
+            with open(args.pidfile, encoding="utf-8") as pidreader:
                 pid = int(pidreader.read())
                 print(f"Sending SIGTERM to process {pid}")
                 kill(pid, signal.SIGTERM)

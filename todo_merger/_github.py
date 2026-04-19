@@ -1,16 +1,17 @@
-"""GitHub issue fetching functions"""
+"""GitHub issue fetching functions."""
 
-from typing import Any
+from collections.abc import Iterable
+from typing import cast
 from urllib.parse import urlparse
 
-from github import AuthenticatedUser, Github, Issue, PaginatedList
+from github import AuthenticatedUser, Github, Issue
 
 from ._helpers import convert_to_datetime, sort_assignees
 from ._types import IssueItem
 
 
-def _gh_url_to_ref(url: str):
-    """Convert a GitHub issue URL to a ref"""
+def _gh_url_to_ref(url: str) -> str:
+    """Convert a GitHub issue URL to a ref."""
     url = urlparse(url).path
     url = url.strip("/")
 
@@ -23,10 +24,10 @@ def _gh_url_to_ref(url: str):
 
 
 def _import_github_issues(
-    issues: PaginatedList.PaginatedList[Issue.Issue] | Any, myuser: str
+    issues: Iterable[Issue.Issue],
+    myuser: str,
 ) -> list[IssueItem]:
-    """Create a list of IssueItem from the GitHub API results"""
-    # pylint: disable=duplicate-code
+    """Create a list of IssueItem from the GitHub API results."""
     issueitems: list[IssueItem] = []
     for issue in issues:
         d = IssueItem()
@@ -55,9 +56,9 @@ def _import_github_issues(
 
 
 def github_get_issues(github: Github) -> list[IssueItem]:
-    """Get all issues assigned to authenticated user"""
+    """Get all issues assigned to authenticated user."""
     issues: list[IssueItem] = []
-    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()  # type: ignore
+    myuser = cast("AuthenticatedUser.AuthenticatedUser", github.get_user())
 
     # See https://docs.github.com/en/rest/issues/issues
     assigned_issues = myuser.get_issues()
