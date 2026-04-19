@@ -36,7 +36,6 @@ todo-merger = "todo_merger.__init__:main"
 dev = [
     "ruff>=0.15.10",
     "ty>=0.0.29",
-    "bump-my-version>=1.2.4,<2",
 ]
 
 [tool.uv]
@@ -75,30 +74,3 @@ convention = "google"
 # TY settings
 [tool.ty.src]
 include = ["todo_merger"]
-
-# Bump-My-Version
-[tool.bumpversion]
-commit = true
-tag = true
-sign_tags = true
-allow_dirty = false
-tag_name = "v{new_version}"
-
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
-regex = true
-search = "^version = \"{current_version}\""
-replace = "version = \"{new_version}\""
-
-[[tool.bumpversion.files]]
-filename = "uv.lock"
-search = """
-[[package]]
-name = "todo-merger"
-version = "{current_version}"
-"""
-replace = """
-[[package]]
-name = "todo-merger"
-version = "{new_version}"
-"""
