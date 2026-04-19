@@ -12,6 +12,7 @@
       ]
     }
   },
+  "pull-request-header": "",
   "changelog-sections": [
     {
       "type": "feat",
