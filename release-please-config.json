@@ -12,7 +12,7 @@
       ]
     }
   },
-  "pull-request-header": "",
+  "pull-request-header": ":robot: You may release a new version",
   "changelog-sections": [
     {
       "type": "feat",
