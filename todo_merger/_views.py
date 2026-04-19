@@ -1,4 +1,4 @@
-"""View functions, removing complexity from main.py"""
+"""View functions, removing complexity from main.py."""
 
 import logging
 
@@ -32,7 +32,8 @@ def get_issues_and_stats(
     cache: bool, issue_filter: str | None
 ) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
     """Functions to view all issues. Returns: list of IssueItem, a IssueStats
-    object, and list of issue IDs"""
+    object, and list of issue IDs.
+    """
     # Get issues (either cache or online)
     if cache:
         issues = read_issues_cache()
@@ -57,7 +58,7 @@ def get_issues_and_stats(
 
 
 def set_ranking(issue: str, rank: str) -> None:
-    """Set new ranking of individual issue inside of the issues configuration file"""
+    """Set new ranking of individual issue inside of the issues configuration file."""
     rank_int = ISSUE_RANKING_TABLE.get(rank, ISSUE_RANKING_TABLE["normal"])
     config: dict[str, dict[str, int | bool]] = read_issues_config()
 
@@ -83,7 +84,7 @@ def set_ranking(issue: str, rank: str) -> None:
 
 
 def set_todolist(issue: str, state: str | bool) -> None:
-    """Add or remove an issue from the personal todo list"""
+    """Add or remove an issue from the personal todo list."""
     config = read_issues_config()
 
     # Convert state to bool if str
@@ -109,12 +110,12 @@ def set_todolist(issue: str, state: str | bool) -> None:
 
 
 def refresh_issues_cache() -> None:
-    """Refresh the cache of issues"""
+    """Refresh the cache of issues."""
     current_app.config["current_cache_timer"] = None
 
 
 def private_tasks_repo_get_labels() -> dict[str, str]:
-    """Get all labels from the private tasks repository"""
+    """Get all labels from the private tasks repository."""
     service, login = (
         current_app.config["private_tasks_repo"]["service"],
         current_app.config["private_tasks_repo"]["login"],
@@ -128,7 +129,8 @@ def private_tasks_repo_get_labels() -> dict[str, str]:
 
 def private_tasks_repo_create_issue(title: str, labels: list[str]) -> str:
     """Create a new issue in the private tasks repository. Returns the web URL
-    of the new issue"""
+    of the new issue.
+    """
     service, login = (
         current_app.config["private_tasks_repo"]["service"],
         current_app.config["private_tasks_repo"]["login"],

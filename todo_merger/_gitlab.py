@@ -1,4 +1,4 @@
-"""GitLab issue fetching functions"""
+"""GitLab issue fetching functions."""
 
 import hashlib
 from typing import Any
@@ -10,7 +10,7 @@ from ._types import IssueItem
 
 
 def _import_gitlab_issues(issues: list[Any], myuser: str, instance_id: str) -> list[IssueItem]:
-    """Create a list of IssueItem from the GitLab API results"""
+    """Create a list of IssueItem from the GitLab API results."""
     issueitems: list[IssueItem] = []
     for issue in issues:
         d = IssueItem()
@@ -39,12 +39,15 @@ def _import_gitlab_issues(issues: list[Any], myuser: str, instance_id: str) -> l
 
 
 def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
-    """Get all issues assigned to authenticated user"""
+    """Get all issues assigned to authenticated user."""
     issues: list[IssueItem] = []
-    myuser: str = gitlab.user.username  # type: ignore
+    if gitlab.user is None:
+        msg = "gitlab.user should be set after auth()"
+        raise RuntimeError(msg)
+    myuser: str = gitlab.user.username
     # Create a unique enough id for the GitLab instance in case we have more
     # than one. Avoids issue id collisions
-    instance_id = hashlib.md5(gitlab.url.encode()).hexdigest()[:6]
+    instance_id = hashlib.md5(gitlab.url.encode(), usedforsecurity=False).hexdigest()[:6]
 
     # See https://docs.gitlab.com/ee/api/issues.html
     assigned_issues = gitlab.issues.list(

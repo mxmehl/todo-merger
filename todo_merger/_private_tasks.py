@@ -1,6 +1,7 @@
-"""Functions for dealing with a the private tasks repo"""
+"""Functions for dealing with a the private tasks repo."""
 
 import logging
+from typing import cast
 
 from flask import current_app
 from github import AuthenticatedUser, Github
@@ -8,7 +9,7 @@ from gitlab import Gitlab
 
 
 def private_tasks_repo_get_gitlab_labels(gitlab: Gitlab) -> dict[str, str]:
-    """Get all labels from a GitLab repository"""
+    """Get all labels from a GitLab repository."""
     private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
 
     all_labels = gitlab.projects.get(private_tasks_repo).labels.list(get_all=True)
@@ -18,7 +19,7 @@ def private_tasks_repo_get_gitlab_labels(gitlab: Gitlab) -> dict[str, str]:
 
 
 def private_tasks_repo_get_github_labels(github: Github) -> dict[str, str]:
-    """Get all labels from a GitHub repository"""
+    """Get all labels from a GitHub repository."""
     private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
 
     all_labels = github.get_repo(private_tasks_repo).get_labels()
@@ -29,8 +30,12 @@ def private_tasks_repo_get_github_labels(github: Github) -> dict[str, str]:
 
 def private_tasks_repo_create_gitlab_issue(gitlab: Gitlab, title: str, labels: list[str]) -> str:
     """Create a new issue in the private tasks repository (GitLab). Returns the
-    web URL of the new issue"""
-    myuser_id = gitlab.user.id  # type: ignore
+    web URL of the new issue.
+    """
+    if gitlab.user is None:
+        msg = "gitlab.user should be set after auth()"
+        raise RuntimeError(msg)
+    myuser_id = gitlab.user.id
 
     private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
 
@@ -46,9 +51,10 @@ def private_tasks_repo_create_gitlab_issue(gitlab: Gitlab, title: str, labels: l
 
 def private_tasks_repo_create_github_issue(github: Github, title: str, labels: list[str]) -> str:
     """Create a new issue in the private tasks repository (GitHub). Returns the
-    web URL of the new issue"""
+    web URL of the new issue.
+    """
     private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
-    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()  # type: ignore
+    myuser = cast("AuthenticatedUser.AuthenticatedUser", github.get_user())
 
     # Create issue
     result = github.get_repo(private_tasks_repo).create_issue(

@@ -13,16 +13,18 @@ class MSPlannerFile:  # pylint: disable=too-few-public-methods
     def __init__(self, file: str) -> None:
 
         try:
-            with open(file, "r", encoding="UTF-8") as f:
+            with open(file, encoding="UTF-8") as f:
                 self.data = json.load(f)
         except FileNotFoundError as err:
-            raise FileNotFoundError(f"Could not find MS Planner export file '{file}'") from err
+            msg = f"Could not find MS Planner export file '{file}'"
+            raise FileNotFoundError(msg) from err
         except json.JSONDecodeError as err:
-            raise ValueError(f"Could not parse MS Planner export file '{file}'") from err
+            msg = f"Could not parse MS Planner export file '{file}'"
+            raise ValueError(msg) from err
 
 
 def _import_msplannerfile_issues(issues: list[dict]) -> list[IssueItem]:
-    """Create a list of IssueItem from the MS Planner file"""
+    """Create a list of IssueItem from the MS Planner file."""
     issueitems: list[IssueItem] = []
     for issue in issues:
         if issue.get("completedDateTime", False):
@@ -53,7 +55,7 @@ def _import_msplannerfile_issues(issues: list[dict]) -> list[IssueItem]:
 
 
 def msplannerfile_get_issues(msplannerfile: MSPlannerFile) -> list[IssueItem]:
-    """Get all issues assigned to authenticated user"""
+    """Get all issues assigned to authenticated user."""
     issues: list[IssueItem] = []
 
     issues.extend(_import_msplannerfile_issues(issues=msplannerfile.data))

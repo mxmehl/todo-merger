@@ -1,4 +1,4 @@
-"""Handling issues which come in from different sources"""
+"""Handling issues which come in from different sources."""
 
 import logging
 
@@ -15,12 +15,11 @@ ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 
 
 def get_all_issues() -> list[IssueItem]:
-    """Get all issues from the supported services"""
+    """Get all issues from the supported services."""
     # Import here to avoid circular dependency
-    # pylint: disable=import-outside-toplevel
-    from ._github import github_get_issues
-    from ._gitlab import gitlab_get_issues
-    from ._msplanner import msplannerfile_get_issues
+    from ._github import github_get_issues  # noqa: PLC0415
+    from ._gitlab import gitlab_get_issues  # noqa: PLC0415
+    from ._msplanner import msplannerfile_get_issues  # noqa: PLC0415
 
     issues: list[IssueItem] = []
     for name, service in current_app.config["services"].items():
@@ -47,7 +46,7 @@ def get_all_issues() -> list[IssueItem]:
 def apply_user_issue_config(
     issues: list[IssueItem], issue_config_dict: dict[str, dict[str, int | bool]]
 ) -> list[IssueItem]:
-    """Apply local user configuration to issues"""
+    """Apply local user configuration to issues."""
     for issue in issues:
         if issue.uid in issue_config_dict:
             issue.rank = issue_config_dict[issue.uid].get("rank", ISSUE_RANKING_TABLE["normal"])
@@ -60,7 +59,7 @@ def apply_user_issue_config(
 
 
 def apply_issue_filter(issues: list[IssueItem], issue_filter: str | None) -> list[IssueItem]:
-    """Apply issue filter to issues"""
+    """Apply issue filter to issues."""
     if not issue_filter:
         logging.debug("No issue filter applied")
 
@@ -78,7 +77,7 @@ def apply_issue_filter(issues: list[IssueItem], issue_filter: str | None) -> lis
 
 
 def get_issues_stats(issues: list[IssueItem]) -> IssuesStats:
-    """Create some stats about the collected issues"""
+    """Create some stats about the collected issues."""
     stats = IssuesStats()
 
     for issue in issues:

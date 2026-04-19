@@ -1,13 +1,12 @@
-"""App config file handling"""
+"""App config file handling."""
 
 import json
 import logging
 import sys
-from os import makedirs
-from os.path import dirname, join
+from pathlib import Path
 
 import toml
-from platformdirs import user_config_dir
+from platformdirs import user_config_path
 
 DEFAULT_APP_CONFIG = """# App configuration for ToDo Merger
 
@@ -44,10 +43,9 @@ show_web_url = true
 
 
 def _initialize_config_file(configfile: str) -> dict:
-    """Create a new app configuration file with default values"""
-
+    """Create a new app configuration file with default values."""
     # Create directory in case it does not exist
-    makedirs(dirname(configfile), exist_ok=True)
+    Path(configfile).parent.mkdir(parents=True, exist_ok=True)
 
     # Write the default config in TOML format to a new file
     with open(configfile, mode="w", encoding="UTF-8") as tomlfile:
@@ -57,9 +55,9 @@ def _initialize_config_file(configfile: str) -> dict:
 
 
 def _read_app_config_file(config_file: str) -> dict:
-    """Read full app configuration"""
+    """Read full app configuration."""
     try:
-        with open(config_file, mode="r", encoding="UTF-8") as tomlfile:
+        with open(config_file, encoding="UTF-8") as tomlfile:
             app_config = toml.load(tomlfile)
 
     except FileNotFoundError:
@@ -70,19 +68,19 @@ def _read_app_config_file(config_file: str) -> dict:
         app_config = _initialize_config_file(config_file)
 
     except toml.decoder.TomlDecodeError:
-        logging.error("Error reading configuration file '%s'. Check the syntax!", config_file)
+        logging.exception("Error reading configuration file '%s'. Check the syntax!", config_file)
         sys.exit(1)
 
     return app_config
 
 
 def default_config_file_path() -> str:
-    """Define the path of the config file"""
-    return join(user_config_dir("todo-merger", ensure_exists=True), "config.toml")
+    """Define the path of the config file."""
+    return str(Path(user_config_path("todo-merger", ensure_exists=True)) / "config.toml")
 
 
 def get_app_config(config_file: str, key: str = "", warn_on_missing_key: bool = True) -> dict:
-    """Return a specific section from the app configuration, or the whole config"""
+    """Return a specific section from the app configuration, or the whole config."""
     logging.debug("Reading app configuration file %s", config_file)
 
     if not config_file:
@@ -100,17 +98,16 @@ def get_app_config(config_file: str, key: str = "", warn_on_missing_key: bool = 
 
 
 def read_issues_config() -> dict:
-    """Return the issues configuration"""
-
-    config_file = join(user_config_dir("todo-merger", ensure_exists=True), "issues-config.json")
+    """Return the issues configuration."""
+    config_file = str(user_config_path("todo-merger", ensure_exists=True) / "issues-config.json")
 
     logging.debug("Reading issues configuration file %s", config_file)
     try:
-        with open(config_file, mode="r", encoding="UTF-8") as jsonfile:
+        with open(config_file, encoding="UTF-8") as jsonfile:
             return json.load(jsonfile)
 
     except json.decoder.JSONDecodeError:
-        logging.error(
+        logging.exception(
             "Cannot read JSON file %s. Please check its syntax or delete it. "
             "Will ignore any issues configuration.",
             config_file,
@@ -129,9 +126,8 @@ def read_issues_config() -> dict:
 
 
 def write_issues_config(issues_config: dict) -> None:
-    """Write issues configuration file"""
-
-    config_file = join(user_config_dir("todo-merger", ensure_exists=True), "issues-config.json")
+    """Write issues configuration file."""
+    config_file = str(user_config_path("todo-merger", ensure_exists=True) / "issues-config.json")
 
     logging.debug("Writing issues configuration file %s", config_file)
     with open(config_file, mode="w", encoding="UTF-8") as jsonfile:
