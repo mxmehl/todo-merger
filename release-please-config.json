@@ -12,7 +12,7 @@
       ]
     }
   },
-  "pull-request-header": ":robot: You may release a new version",
+  "pull-request-header": ":robot: New Release",
   "changelog-sections": [
     {
       "type": "feat",
