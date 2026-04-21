@@ -23,9 +23,6 @@ from ._config import default_config_file_path, get_app_config
 from ._gitea import Gitea
 from ._msplanner import MSPlannerFile
 
-# from sassutils.wsgi import SassMiddleware
-
-
 daemon: types.ModuleType | None = None
 try:
     import daemon
@@ -168,7 +165,7 @@ def create_app(config_file: str) -> Flask:
     # Set a secret key for the session
     app.secret_key = str(uuid.uuid4().hex)
 
-    # Load app config and login to services (e.g. GitHub and GitLab)
+    # Load app config and login to services (e.g. GitHub, GitLab, Gitea)
     app.config["services"] = {}
     for name, service in load_app_services_config(config_file).items():
         app.config["services"][name] = service
@@ -200,7 +197,7 @@ def create_app(config_file: str) -> Flask:
         config_file, "private-tasks-repo", warn_on_missing_key=False
     ):
         app.config["private_tasks_repo"] = private_tasks_repo_config
-        # Find the GitHub/GitLab service object that is configured for the private tasks repo
+        # Find the GitHub/GitLab/Gitea service object that is configured for the private tasks repo
         try:
             (
                 app.config["private_tasks_repo"]["service"],
