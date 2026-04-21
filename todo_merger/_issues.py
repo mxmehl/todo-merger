@@ -17,6 +17,7 @@ ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 def get_all_issues() -> list[IssueItem]:
     """Get all issues from the supported services."""
     # Import here to avoid circular dependency
+    from ._gitea import gitea_get_issues  # noqa: PLC0415
     from ._github import github_get_issues  # noqa: PLC0415
     from ._gitlab import gitlab_get_issues  # noqa: PLC0415
     from ._msplanner import msplannerfile_get_issues  # noqa: PLC0415
@@ -29,6 +30,9 @@ def get_all_issues() -> list[IssueItem]:
         elif service[0] == "gitlab":
             logging.info("Getting assigned GitLab issues for %s", name)
             issues.extend(gitlab_get_issues(service[1]))
+        elif service[0] == "gitea":
+            logging.info("Getting assigned Gitea issues for %s", name)
+            issues.extend(gitea_get_issues(service[1]))
         elif service[0] == "msplanner-file":
             logging.info("Getting assigned MS Planner tasks for %s", name)
             issues.extend(msplannerfile_get_issues(service[1]))

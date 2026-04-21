@@ -1,4 +1,4 @@
-"""ToDo Merger: Provide an overview of your assigned issues on GitLab and GitLab."""
+"""ToDo Merger: Provide an overview of your assigned issues on GitHub, GitLab, and Gitea."""
 
 import argparse
 import logging
@@ -18,8 +18,9 @@ from platformdirs import user_log_dir, user_runtime_dir
 from sass_embedded import compile_directory
 from sass_embedded.dart_sass.installer import install as install_dart_sass
 
-from ._auth import github_login, gitlab_login
+from ._auth import gitea_login, github_login, gitlab_login
 from ._config import default_config_file_path, get_app_config
+from ._gitea import Gitea
 from ._msplanner import MSPlannerFile
 
 # from sassutils.wsgi import SassMiddleware
@@ -94,10 +95,10 @@ def configure_logger(args: argparse.Namespace) -> logging.Logger:
 
 def load_app_services_config(
     config_file: str, section: str = "services"
-) -> dict[str, tuple[str, Github | Gitlab | MSPlannerFile]]:
+) -> dict[str, tuple[str, Github | Gitlab | Gitea | MSPlannerFile]]:
     """Load the app config, handle service logins, and return objects."""
     app_config: dict[str, dict[str, str]] = get_app_config(config_file, section)
-    service_objects: dict[str, tuple[str, Github | Gitlab | MSPlannerFile]] = {}
+    service_objects: dict[str, tuple[str, Github | Gitlab | Gitea | MSPlannerFile]] = {}
 
     for name, cfg in app_config.items():
         service = cfg.get("service", "")
@@ -116,17 +117,25 @@ def load_app_services_config(
             )
             sys.exit(1)
 
+        if service == "gitea" and not url:
+            logging.critical(
+                "The config section %s is a gitea service but has no 'url' defined", name
+            )
+            sys.exit(1)
+
         if name in service_objects:
             logging.critical(
                 "You have used the section name %s more than once. Please make them unique", name
             )
             sys.exit(1)
 
-        loginobj: Github | Gitlab | MSPlannerFile
+        loginobj: Github | Gitlab | Gitea | MSPlannerFile
         if service == "github":
             loginobj = github_login(token)
         elif service == "gitlab":
             loginobj = gitlab_login(token, url)
+        elif service == "gitea":
+            loginobj = gitea_login(token, url)
         elif service == "msplanner-file":
             loginobj = MSPlannerFile(cfg.get("file", ""))
         else:

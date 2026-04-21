@@ -7,6 +7,8 @@ from flask import current_app
 from github import AuthenticatedUser, Github
 from gitlab import Gitlab
 
+from ._gitea import Gitea
+
 
 def private_tasks_repo_get_gitlab_labels(gitlab: Gitlab) -> dict[str, str]:
     """Get all labels from a GitLab repository."""
@@ -64,3 +66,34 @@ def private_tasks_repo_create_github_issue(github: Github, title: str, labels: l
     logging.debug("Created issue in repository '%s': %s", private_tasks_repo, result.html_url)
 
     return result.html_url
+
+
+def private_tasks_repo_get_gitea_labels(gitea: Gitea) -> dict[str, str]:
+    """Get all labels from a Gitea repository."""
+    private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
+    owner, repo = private_tasks_repo.split("/", 1)
+
+    all_labels = gitea.get_repo_labels(owner, repo)
+
+    # Return dict of label name and label color
+    return {label["name"]: f"#{label['color']}" for label in all_labels}
+
+
+def private_tasks_repo_create_gitea_issue(gitea: Gitea, title: str, labels: list[str]) -> str:
+    """Create a new issue in the private tasks repository (Gitea). Returns the
+    web URL of the new issue.
+    """
+    private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
+    owner, repo = private_tasks_repo.split("/", 1)
+
+    # Resolve label names to IDs
+    all_labels = gitea.get_repo_labels(owner, repo)
+    label_ids = [label["id"] for label in all_labels if label["name"] in labels]
+
+    result = gitea.create_issue(
+        owner, repo, title=title, labels=label_ids, assignee=str(gitea.user["login"])
+    )
+
+    logging.debug("Created issue in repository '%s': %s", private_tasks_repo, result["html_url"])
+
+    return result["html_url"]
