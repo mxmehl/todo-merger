@@ -1,59 +1,105 @@
 # ToDo Merger
 
-Get an overview of all issues assigned to you on GitHub, one or more GitLab or Gitea instances, or local exports of Microsoft Planner tasks.
+Get a unified overview of all issues and tasks assigned to you across multiple platforms — in one local web dashboard.
 
-Very early stage, contributions and ideas are welcome!
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+[![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue)](LICENSE.txt)
+[![PyPI](https://img.shields.io/pypi/v/todo-merger)](https://pypi.org/project/todo-merger/)
+
+
+## Features
+
+- **Multi-platform aggregation** — pulls assigned issues, merge/pull requests, and tasks from GitHub, one or more GitLab instances, Gitea instances, and local Microsoft Planner exports, all into a single view
+- **Graceful degradation** — if an instance is unreachable (e.g. a company GitLab behind a VPN), the app keeps running and shows cached data for that instance with a warning banner; other services are unaffected. Connectivity is retried automatically on the next cache refresh
+- **Personal prioritisation** — pin, promote, or deprioritise any issue without touching the upstream tracker; rankings are stored locally
+- **Todo list** — mark individual issues as personal todos and filter the view to show only those
+- **New issue highlighting** — issues you haven't seen before are highlighted until you dismiss them
+- **Private task creation** — create new issues directly in a configured private repository (GitHub, GitLab, or Gitea) from within the dashboard
+- **Configurable display** — toggle which metadata columns are shown (labels, milestones, epics, assignees, due dates, refs, …)
+- **Daemon mode** — run as a background process with `--daemon` / `stop`
+- **Fast cache** — configurable cache timeout (default 10 minutes) avoids hammering the APIs on every page load; manual refresh available at any time
 
 
 ## Installation
 
-### Install and run via pipx (Recommended)
+### pipx (recommended)
 
-[pipx](https://pypa.github.io/pipx/) makes installing and running Python programs easier and avoid conflicts with other packages. Install it with
+[pipx](https://pypa.github.io/pipx/) installs the app in an isolated environment and keeps it off your system Python.
 
 ```sh
-pip3 install pipx
+pip3 install pipx          # install pipx if not already present
+pipx install todo-merger   # install todo-merger
 ```
 
-The following one-liner both installs and runs this program from [PyPI](https://pypi.org/project/todo-merger/):
+todo-merger will be available in `~/.local/bin` (add to `$PATH` if needed).
+
+To run without installing permanently:
 
 ```sh
 pipx run todo-merger
 ```
 
-If you want to be able to use todo-merger without prepending it with `pipx run` every time, install it globally like so:
-
-```sh
-pipx install todo-merger
-```
-
-todo-merger will then be available in `~/.local/bin`, which must be added to your `$PATH`. On Windows, the required path for your environment may look like `%USERPROFILE%\AppData\Roaming\Python\Python310\Scripts`, depending on the Python version you have installed.
-
-To upgrade todo-merger to the newest available version, run this command:
+To upgrade:
 
 ```sh
 pipx upgrade todo-merger
 ```
 
-### Other installation methods
+### Other methods
 
-You may also use pure `pip` or `uv` to install this package.
+```sh
+pip install todo-merger   # plain pip
+uv tool install todo-merger  # uv
+```
 
 
 ## Usage
 
-Run `todo-merger`. This will run the application. You can interact with it using your browser on http://localhost:8636.
+Please see `todo-merger --help` for the latest usage instructions. In general, the app is started with:
+
+```sh
+todo-merger [options] [command]
+```
+
+Open <http://localhost:8636> in your browser after starting.
+
+**Important options:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-c`, `--config-file` | Path to the config file | `~/.config/todo-merger/config.toml` |
+| `-d`, `--daemon` | Run in the background, logging to a file | — |
+| `-v` | INFO logging | — |
+| `-vv` | DEBUG logging | — |
+
+**Important Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `stop` | Stop a running background instance |
 
 
 ## Configuration
 
-Upon start, the program will create a new empty configuration file. You will probably run into an error because no login data is present. From the error messages, you can find the config file in which you will have to add your data.
+On first start, todo-merger creates an empty config file at `~/.config/todo-merger/config.toml`. Edit it to add your service credentials.
 
-This will surely be improved in the next versions.
+See [`DEFAULT_APP_CONFIG` in `_config.py`](todo_merger/_config.py) for all available options and their defaults.
+
+Multiple instances of the same platform are supported — just add more `[services.*]` sections with unique names.
+
+### Unavailable instances
+
+If a service is currently unavailable (e.g. because company VPN is disconnected), todo-merger handles it gracefully:
+
+- **App starts without connection** — the unreachable instance is skipped and recorded as degraded; a warning banner is shown in the dashboard. Cached data from the last successful fetch is displayed.
+- **Connection reestablished later** — the next cache refresh (or manual reload) automatically retries the login and fetch for the degraded instance. If it succeeds, the warning disappears.
+- **Connection drops mid-session** — the failing instance falls back to its last cached data; all other services continue normally.
+
+No configuration is needed for this behaviour — it is automatic.
 
 
 ## License
 
 The main license of this project is the GNU General Public License 3.0, no later version (`GPL-3.0-only`), Copyright Max Mehl.
 
-There are also parts from third parties under different licenses, e.g. Pico CSS (MIT) and snippets from DB Systel (Apache-2.0). Thank you!
+Third-party components included under their respective licenses: Pico CSS (MIT), snippets from DB Systel (Apache-2.0).
