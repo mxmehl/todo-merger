@@ -48,6 +48,7 @@ class IssuesStats:
     """Dataclass holding a stats about all issues."""
 
     total: int = 0
+    gitea: int = 0
     gitlab: int = 0
     github: int = 0
     msplanner: int = 0

@@ -21,8 +21,10 @@ from ._issues import (
     get_issues_stats,
 )
 from ._private_tasks import (
+    private_tasks_repo_create_gitea_issue,
     private_tasks_repo_create_github_issue,
     private_tasks_repo_create_gitlab_issue,
+    private_tasks_repo_get_gitea_labels,
     private_tasks_repo_get_github_labels,
     private_tasks_repo_get_gitlab_labels,
 )
@@ -124,6 +126,9 @@ def private_tasks_repo_get_labels() -> dict[str, str]:
     if service == "gitlab":
         return private_tasks_repo_get_gitlab_labels(gitlab=login)
 
+    if service == "gitea":
+        return private_tasks_repo_get_gitea_labels(gitea=login)
+
     return private_tasks_repo_get_github_labels(github=login)
 
 
@@ -138,5 +143,8 @@ def private_tasks_repo_create_issue(title: str, labels: list[str]) -> str:
 
     if service == "gitlab":
         return private_tasks_repo_create_gitlab_issue(gitlab=login, title=title, labels=labels)
+
+    if service == "gitea":
+        return private_tasks_repo_create_gitea_issue(gitea=login, title=title, labels=labels)
 
     return private_tasks_repo_create_github_issue(github=login, title=title, labels=labels)

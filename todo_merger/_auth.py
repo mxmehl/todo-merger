@@ -7,6 +7,7 @@ from github import Github
 from gitlab import Gitlab
 
 from ._config import default_config_file_path
+from ._gitea import Gitea
 
 
 def github_login(token: str) -> Github:
@@ -41,3 +42,15 @@ def gitlab_login(token: str, url: str = "https://gitlab.com") -> Gitlab:
         raise RuntimeError(msg)
     logging.info("Logged into GitLab as %s on %s", g.user.username, url)
     return g
+
+
+def gitea_login(token: str, url: str) -> Gitea:
+    """Login to Gitea with token."""
+    if not token:
+        logging.critical(
+            "You need to provide a token for Gitea. Add that to your configuration file. "
+            "Default: %s",
+            default_config_file_path(),
+        )
+        sys.exit(1)
+    return Gitea(url=url, token=token)

@@ -22,6 +22,11 @@ service = "gitlab"
 token = ""
 url = "https://gitlab.com"
 
+[services.gitea-johndoe]
+service = "gitea"
+token = ""
+url = "https://gitea.johndoe.com"
+
 # Private tasks repository configuration
 # [private-tasks-repo]
 # service = "github-com"
