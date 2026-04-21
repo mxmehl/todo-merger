@@ -8,6 +8,7 @@ from typing import cast
 
 from platformdirs import user_cache_dir
 
+from ._helpers import convert_to_datetime
 from ._issues import IssueItem
 
 
@@ -64,13 +65,20 @@ def _write_cache_file(filename: str, content: dict | list) -> None:
         json.dump(content, jsonfile, indent=2, default=str)
 
 
+def _deserialise_issue(element: dict) -> IssueItem:
+    """Create an IssueItem from a cached dict, ensuring updated_at is a datetime."""
+    issue = IssueItem(**element)
+    issue.updated_at = convert_to_datetime(issue.updated_at)
+    return issue
+
+
 def read_issues_cache() -> list[IssueItem]:
     """Return the current issue cache, or initialize empty one if none present."""
     issues_cache = cast("list[dict]", _read_cache_file(filename="issues.json"))
 
     if issues_cache:
         # Convert to list of IssueItem
-        return [IssueItem(**element) for element in issues_cache]
+        return [_deserialise_issue(element) for element in issues_cache]
 
     # Initialize empty issues cache
     write_issues_cache(issues=[])
@@ -82,6 +90,29 @@ def write_issues_cache(issues: list[IssueItem]) -> None:
     issues_as_dict = [issue.convert_to_dict() for issue in issues]
 
     _write_cache_file(filename="issues.json", content=issues_as_dict)
+
+
+def write_instance_cache(instance_name: str, issues: list[IssueItem]) -> None:
+    """Write a per-instance issues cache file."""
+    issues_as_dict = [issue.convert_to_dict() for issue in issues]
+    _write_cache_file(filename=f"issues-{instance_name}.json", content=issues_as_dict)
+
+
+def read_instance_cache(instance_name: str) -> list[IssueItem]:
+    """Read a per-instance issues cache file. Returns an empty list if not found."""
+    issues_cache = cast("list[dict]", _read_cache_file(filename=f"issues-{instance_name}.json"))
+    return [_deserialise_issue(element) for element in issues_cache]
+
+
+def read_all_instances_cache() -> list[IssueItem]:
+    """Read all per-instance cache files and combine into one list."""
+    cache_dir = Path(user_cache_dir("todo-merger", ensure_exists=True))
+    all_issues: list[IssueItem] = []
+    for cache_file in cache_dir.glob("issues-*.json"):
+        instance_name = cache_file.stem[len("issues-") :]
+        logging.debug("Reading instance cache for '%s'", instance_name)
+        all_issues.extend(read_instance_cache(instance_name))
+    return all_issues
 
 
 def get_cache_status(cache_timer: None | datetime, timeout_seconds: int) -> bool:
@@ -139,20 +170,19 @@ def add_to_seen_issues(new_unseen_issues: list[str]) -> None:
     _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)
 
 
-def update_last_seen() -> None:
+def update_last_seen(issues: list[IssueItem]) -> None:
     """Update the last_seen flag of an issue in the cache."""
-    issues_cache = cast("list[dict]", _read_cache_file(filename="issues.json"))
     seen_issues_cached = cast(
         "dict[str, dict[str, int]]",
         _read_cache_file(filename="seen-issues.json", instance="dict"),
     )
 
-    logging.debug("Updating last_seen flag for all %s issues in cache", len(issues_cache))
-    for issue in issues_cache:
-        uid = issue.get("uid", "")
-        if uid in seen_issues_cached:
-            seen_issues_cached[uid]["last_seen"] = int(datetime.now(timezone.utc).timestamp())
+    logging.debug("Updating last_seen flag for all %s issues", len(issues))
+    now_ts = int(datetime.now(timezone.utc).timestamp())
+    for issue in issues:
+        if issue.uid in seen_issues_cached:
+            seen_issues_cached[issue.uid]["last_seen"] = now_ts
         else:
-            logging.debug("Issue %s not found in seen issues cache", uid)
+            logging.debug("Issue %s not found in seen issues cache", issue.uid)
 
     _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)

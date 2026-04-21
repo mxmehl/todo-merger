@@ -17,6 +17,7 @@ class Gitea:
         self._client = httpx.Client(
             base_url=f"{self.url}/api/v1",
             headers={"Authorization": f"token {token}", "Accept": "application/json"},
+            timeout=10,
         )
         self.user: dict[str, str | int | bool] = self._get("/user")
         logging.info("Logged into Gitea as %s on %s", self.user["login"], self.url)
