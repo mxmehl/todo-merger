@@ -18,13 +18,10 @@ from platformdirs import user_log_dir, user_runtime_dir
 from sass_embedded import compile_directory
 from sass_embedded.dart_sass.installer import install as install_dart_sass
 
-from ._auth import gitea_login, github_login, gitlab_login
+from ._auth import try_service_login
 from ._config import default_config_file_path, get_app_config
 from ._gitea import Gitea
 from ._msplanner import MSPlannerFile
-
-# from sassutils.wsgi import SassMiddleware
-
 
 daemon: types.ModuleType | None = None
 try:
@@ -95,10 +92,12 @@ def configure_logger(args: argparse.Namespace) -> logging.Logger:
 
 def load_app_services_config(
     config_file: str, section: str = "services"
-) -> dict[str, tuple[str, Github | Gitlab | Gitea | MSPlannerFile]]:
+) -> dict[str, tuple[str, Github | Gitlab | Gitea | MSPlannerFile | None, dict[str, str]]]:
     """Load the app config, handle service logins, and return objects."""
     app_config: dict[str, dict[str, str]] = get_app_config(config_file, section)
-    service_objects: dict[str, tuple[str, Github | Gitlab | Gitea | MSPlannerFile]] = {}
+    service_objects: dict[
+        str, tuple[str, Github | Gitlab | Gitea | MSPlannerFile | None, dict[str, str]]
+    ] = {}
 
     for name, cfg in app_config.items():
         service = cfg.get("service", "")
@@ -129,20 +128,22 @@ def load_app_services_config(
             )
             sys.exit(1)
 
-        loginobj: Github | Gitlab | Gitea | MSPlannerFile
-        if service == "github":
-            loginobj = github_login(token)
-        elif service == "gitlab":
-            loginobj = gitlab_login(token, url)
-        elif service == "gitea":
-            loginobj = gitea_login(token, url)
+        # Store credentials for later re-login attempts (e.g. after VPN reconnect)
+        credentials: dict[str, str] = {"token": token, "url": url, "file": cfg.get("file", "")}
+
+        # msplanner-file has no network login. All other services use try_service_login(),
+        # which calls the individual login functions — those already call sys.exit(1) on a
+        # missing token, so no duplicate checks are needed here.
+        loginobj: Github | Gitlab | Gitea | MSPlannerFile | None
+        if service in {"github", "gitlab", "gitea"}:
+            loginobj = try_service_login(service, credentials)
         elif service == "msplanner-file":
             loginobj = MSPlannerFile(cfg.get("file", ""))
         else:
             logging.critical("The config section %s contains an unknown 'service'", name)
             sys.exit(1)
 
-        service_objects[name] = (service, loginobj)
+        service_objects[name] = (service, loginobj, credentials)
 
     return service_objects
 
@@ -168,10 +169,16 @@ def create_app(config_file: str) -> Flask:
     # Set a secret key for the session
     app.secret_key = str(uuid.uuid4().hex)
 
-    # Load app config and login to services (e.g. GitHub and GitLab)
+    # Load app config and login to services (e.g. GitHub, GitLab, Gitea)
     app.config["services"] = {}
     for name, service in load_app_services_config(config_file).items():
         app.config["services"][name] = service
+
+    # Track which services are currently unreachable (e.g. VPN-gated instances)
+    app.config["degraded_services"]: dict[str, str] = {}
+    for name, service in app.config["services"].items():
+        if service[1] is None:
+            app.config["degraded_services"][name] = "Could not connect during startup"
 
     # Initiate cache timer
     app.config["current_cache_timer"] = None
@@ -200,12 +207,13 @@ def create_app(config_file: str) -> Flask:
         config_file, "private-tasks-repo", warn_on_missing_key=False
     ):
         app.config["private_tasks_repo"] = private_tasks_repo_config
-        # Find the GitHub/GitLab service object that is configured for the private tasks repo
+        # Find the GitHub/GitLab/Gitea service object that is configured for the private tasks repo
         try:
-            (
-                app.config["private_tasks_repo"]["service"],
-                app.config["private_tasks_repo"]["login"],
-            ) = app.config["services"][app.config["private_tasks_repo"]["service"]]
+            _svc_type, _login, _creds = app.config["services"][
+                app.config["private_tasks_repo"]["service"]
+            ]
+            app.config["private_tasks_repo"]["service"] = _svc_type
+            app.config["private_tasks_repo"]["login"] = _login
         except KeyError:
             logging.critical(
                 "The 'private-tasks-repo' section in the config file refers to "

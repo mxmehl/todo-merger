@@ -14,32 +14,101 @@ ISSUE_RANKING_TABLE = {"pin": -1, "high": 1, "normal": 5, "low": 99}
 # ----------------------------------------
 
 
-def get_all_issues() -> list[IssueItem]:
-    """Get all issues from the supported services."""
+def _fetch_service_issues(
+    svc_type: str,
+    login_obj: object,
+    name: str,
+) -> list[IssueItem]:
+    """Dispatch to the correct fetch function for the given service type."""
     # Import here to avoid circular dependency
     from ._gitea import gitea_get_issues  # noqa: PLC0415
     from ._github import github_get_issues  # noqa: PLC0415
     from ._gitlab import gitlab_get_issues  # noqa: PLC0415
     from ._msplanner import msplannerfile_get_issues  # noqa: PLC0415
 
-    issues: list[IssueItem] = []
-    for name, service in current_app.config["services"].items():
-        if service[0] == "github":
-            logging.info("Getting assigned GitHub issues for %s", name)
-            issues.extend(github_get_issues(service[1]))
-        elif service[0] == "gitlab":
-            logging.info("Getting assigned GitLab issues for %s", name)
-            issues.extend(gitlab_get_issues(service[1]))
-        elif service[0] == "gitea":
-            logging.info("Getting assigned Gitea issues for %s", name)
-            issues.extend(gitea_get_issues(service[1]))
-        elif service[0] == "msplanner-file":
-            logging.info("Getting assigned MS Planner tasks for %s", name)
-            issues.extend(msplannerfile_get_issues(service[1]))
-        else:
-            print(f"Service {service[0]} not supported for fetching issues")
+    if svc_type == "github":
+        logging.info("Getting assigned GitHub issues for %s", name)
+        return github_get_issues(login_obj)  # ty: ignore[invalid-argument-type]
+    if svc_type == "gitlab":
+        logging.info("Getting assigned GitLab issues for %s", name)
+        return gitlab_get_issues(login_obj)  # ty: ignore[invalid-argument-type]
+    if svc_type == "gitea":
+        logging.info("Getting assigned Gitea issues for %s", name)
+        return gitea_get_issues(login_obj)  # ty: ignore[invalid-argument-type]
+    if svc_type == "msplanner-file":
+        logging.info("Getting assigned MS Planner tasks for %s", name)
+        return msplannerfile_get_issues(login_obj)  # ty: ignore[invalid-argument-type]
+    logging.warning("Service %s not supported for fetching issues", svc_type)
+    return []
 
-    return issues
+
+def get_all_issues() -> tuple[list[IssueItem], dict[str, str]]:
+    """Get all issues from the supported services.
+
+    Returns a tuple of (all_issues, degraded_services) where degraded_services
+    maps service name to an error message for any instance that could not be
+    reached. Stale cached data is used as a fallback for unreachable instances.
+    """
+    # Import here to avoid circular dependency
+    from ._auth import try_service_login  # noqa: PLC0415
+    from ._cache import read_instance_cache, write_instance_cache  # noqa: PLC0415
+
+    issues: list[IssueItem] = []
+    degraded: dict[str, str] = {}
+
+    for name, service in current_app.config["services"].items():
+        svc_type, login_obj, credentials = service[0], service[1], service[2]
+
+        # Attempt re-login if the login object is missing (e.g. VPN was down at startup)
+        if login_obj is None and svc_type != "msplanner-file":
+            logging.info("Attempting re-login for service '%s'", name)
+            login_obj = try_service_login(svc_type, credentials)
+            if login_obj is not None:
+                # Update stored login object so subsequent requests reuse it
+                current_app.config["services"][name] = (svc_type, login_obj, credentials)
+
+        # Still no login object after retry — treat as unreachable without raising
+        if login_obj is None:
+            error_msg = "Service unreachable (no login object available)"
+            logging.warning(
+                "Skipping fetch for service '%s' — no login object. Falling back to cached data.",
+                name,
+            )
+            degraded[name] = error_msg
+            current_app.config["degraded_services"][name] = error_msg
+            issues.extend(read_instance_cache(name))
+            continue
+
+        try:
+            svc_issues = _fetch_service_issues(svc_type, login_obj, name)
+
+            # Tag each issue with its config instance name
+            for issue in svc_issues:
+                issue.instance = name
+
+            # Persist fresh data and clear any previous degraded state
+            write_instance_cache(name, svc_issues)
+            current_app.config["degraded_services"].pop(name, None)
+            issues.extend(svc_issues)
+
+        except Exception as exc:  # noqa: BLE001
+            error_msg = f"{type(exc).__name__}: {exc}"
+            logging.warning(
+                "Failed to fetch issues for service '%s' (%s). "
+                "Falling back to cached data. Error: %s",
+                name,
+                svc_type,
+                error_msg,
+                exc_info=True,
+            )
+            degraded[name] = error_msg
+            current_app.config["degraded_services"][name] = error_msg
+            # Fall back to stale per-instance cache
+            stale = read_instance_cache(name)
+            logging.info("Using %d stale cached issue(s) for service '%s'", len(stale), name)
+            issues.extend(stale)
+
+    return issues, degraded
 
 
 # ----------------------------------------

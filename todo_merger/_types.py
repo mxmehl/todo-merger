@@ -15,6 +15,7 @@ class IssueItem:
     epic_title: str = ""
     labels: list = field(default_factory=list)
     milestone_title: str = ""
+    instance: str = ""
     pull: bool = False
     rank: int = 5  # Will be updated with ISSUE_RANKING_TABLE["normal"]
     ref: str = ""

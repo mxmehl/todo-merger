@@ -34,12 +34,21 @@ def index() -> str:
         current_app.config["current_cache_timer"] = datetime.now(tz=timezone.utc)
 
     try:
-        issues, stats, new_issues = get_issues_and_stats(cache=cache, issue_filter=issue_filter)
+        issues, stats, new_issues, degraded_services = get_issues_and_stats(
+            cache=cache, issue_filter=issue_filter
+        )
     except Exception as ex:  # noqa: BLE001
         template = "An exception of type {0} occurred. Traceback:<br /><pre>{1}</pre>"
         message = template.format(type(ex).__name__, traceback.format_exc())
         flash(message, "error")
         return render_template("error.html")
+
+    # Warn about any services that could not be reached (e.g. VPN-gated instances)
+    for svc_name, error_msg in degraded_services.items():
+        flash(
+            f"Service '{svc_name}' is unreachable — showing cached data. ({error_msg})",
+            "warning",
+        )
 
     # Find out if private tasks repo is configured
     private_private_tasks_repo_configured = current_app.config.get("private_tasks_repo", None)

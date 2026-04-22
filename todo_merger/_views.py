@@ -6,9 +6,8 @@ from flask import current_app
 
 from ._cache import (
     get_unseen_issues,
-    read_issues_cache,
+    read_all_instances_cache,
     update_last_seen,
-    write_issues_cache,
 )
 from ._config import read_issues_config, write_issues_config
 from ._issues import (
@@ -32,20 +31,19 @@ from ._private_tasks import (
 
 def get_issues_and_stats(
     cache: bool, issue_filter: str | None
-) -> tuple[list[IssueItem], IssuesStats, dict[str, str]]:
+) -> tuple[list[IssueItem], IssuesStats, dict[str, str], dict[str, str]]:
     """Functions to view all issues. Returns: list of IssueItem, a IssueStats
-    object, and list of issue IDs.
+    object, list of new issue IDs, and a dict of degraded service names to error messages.
     """
     # Get issues (either cache or online)
     if cache:
-        issues = read_issues_cache()
+        issues = read_all_instances_cache()
+        degraded = current_app.config.get("degraded_services", {})
     else:
-        # Get all issues from the services
-        issues = get_all_issues()
-        # Update cache file
-        write_issues_cache(issues=issues)
-        # Update last_seen flag in seen issues cache
-        update_last_seen()
+        # Get all issues from the services; degraded maps name → error message
+        issues, degraded = get_all_issues()
+        # Update last_seen timestamps using the freshly fetched issues
+        update_last_seen(issues=issues)
     # Get previously unseen issues
     new_issues = get_unseen_issues(issues=issues)
     # Issues custom config (ranking)
@@ -56,7 +54,7 @@ def get_issues_and_stats(
     # Stats
     stats = get_issues_stats(issues)
 
-    return issues, stats, new_issues
+    return issues, stats, new_issues, degraded
 
 
 def set_ranking(issue: str, rank: str) -> None:
