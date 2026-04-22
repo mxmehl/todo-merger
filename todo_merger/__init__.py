@@ -66,7 +66,13 @@ parser.add_argument(
 parser.add_argument(
     "-vv",
     "--debug",
-    help="Activate DEBUG logging (even more than INFO)",
+    help="Activate DEBUG logging",
+    action="store_true",
+)
+parser.add_argument(
+    "-vvv",
+    "--debug-all",
+    help="Activate DEBUG logging including verbose HTTP client logs (httpx etc.)",
     action="store_true",
 )
 parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
@@ -83,9 +89,20 @@ def configure_logger(args: argparse.Namespace) -> logging.Logger:
     log = logging.getLogger()
     logging.basicConfig(
         format="%(levelname)s in %(module)s: %(message)s",
-        level=(logging.DEBUG if args.debug else logging.INFO if args.verbose else logging.WARNING),
+        level=(
+            logging.DEBUG
+            if args.debug or args.debug_all
+            else logging.INFO
+            if args.verbose
+            else logging.WARNING
+        ),
         handlers=[logging.StreamHandler()],
     )
+
+    # httpx is very chatty at DEBUG level; cap it at INFO unless -vvv is given
+    if (args.debug or args.debug_all) and not args.debug_all:
+        for noisy in ("httpx", "httpcore"):
+            logging.getLogger(noisy).setLevel(logging.INFO)
 
     return log
 
