@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.4.0](https://github.com/mxmehl/todo-merger/compare/v1.3.2...v1.4.0) (2026-04-22)
+
+
+### 🚀 New Features
+
+* handle unavailable instances, gracefully reconnect ([#140](https://github.com/mxmehl/todo-merger/issues/140)) ([628c4ba](https://github.com/mxmehl/todo-merger/commit/628c4babc584c2c9b728f15e2f728758a8d866e7))
+* reduce verbosity of DEBUG logging for HTTP requests, introduce -vvv to enable it again ([#141](https://github.com/mxmehl/todo-merger/issues/141)) ([5377826](https://github.com/mxmehl/todo-merger/commit/53778262c2e47bc4f59db6f8f11637a38471235a))
+* support gitea instances ([#138](https://github.com/mxmehl/todo-merger/issues/138)) ([0cf5501](https://github.com/mxmehl/todo-merger/commit/0cf5501d97053c18db54538d271234bf30d7c50c))
+
+
+### ⚙️ Chores
+
+* **deps:** update astral-sh/setup-uv action to v8.1.0 ([#137](https://github.com/mxmehl/todo-merger/issues/137)) ([4e15c39](https://github.com/mxmehl/todo-merger/commit/4e15c39ec456bd7f98eee72526e61c758beb0b73))
+* **releaser:** cleanup and docs ([2acb49b](https://github.com/mxmehl/todo-merger/commit/2acb49b4ea0bffca72c51eb4629f3923ebac3ba4))
+* **releaser:** remove bump-my-version ([#135](https://github.com/mxmehl/todo-merger/issues/135)) ([921c894](https://github.com/mxmehl/todo-merger/commit/921c894e6aba591d77b990afc253dc6f31d74b99))
+
 ## [1.3.2](https://github.com/mxmehl/todo-merger/compare/v1.3.1...v1.3.2) (2026-04-19)
 
 
