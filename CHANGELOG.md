@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.4.1](https://github.com/mxmehl/todo-merger/compare/v1.4.0...v1.4.1) (2026-05-19)
+
+
+### 📦 CI Improvements
+
+* add zizmor workflow ([#145](https://github.com/mxmehl/todo-merger/issues/145)) ([5e9faa3](https://github.com/mxmehl/todo-merger/commit/5e9faa3b679fcaccb07c068053c53c7f289948fd))
+* harden release-please app token permissions ([#154](https://github.com/mxmehl/todo-merger/issues/154)) ([a26ad50](https://github.com/mxmehl/todo-merger/commit/a26ad5043b132046697a99018b97d9fb74b8312a))
+* restrict some workflows to only run upstream ([#146](https://github.com/mxmehl/todo-merger/issues/146)) ([d283752](https://github.com/mxmehl/todo-merger/commit/d283752e7219570a83946278bc568c30afe782ce))
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#143](https://github.com/mxmehl/todo-merger/issues/143)) ([0ca5c38](https://github.com/mxmehl/todo-merger/commit/0ca5c382d4c574f2798f8dfd9db9fbb2d38fcfdf))
+* **deps:** lock file maintenance ([#148](https://github.com/mxmehl/todo-merger/issues/148)) ([18ae66d](https://github.com/mxmehl/todo-merger/commit/18ae66dfcbe08923a7edafd1782f54e7c974d028))
+* **deps:** lock file maintenance ([#150](https://github.com/mxmehl/todo-merger/issues/150)) ([76cb734](https://github.com/mxmehl/todo-merger/commit/76cb734d97732fb3655d40ade2568cc4eb12ab9d))
+* **deps:** lock file maintenance ([#152](https://github.com/mxmehl/todo-merger/issues/152)) ([e4088e0](https://github.com/mxmehl/todo-merger/commit/e4088e0a5b1ca9255972b84b5cecd94290a56f1a))
+* **deps:** update actions/create-github-app-token action to v3.2.0 ([#151](https://github.com/mxmehl/todo-merger/issues/151)) ([ad07829](https://github.com/mxmehl/todo-merger/commit/ad07829761ced4aa404307fd058f0a0d4bee6e46))
+* **deps:** update googleapis/release-please-action action to v5 ([#142](https://github.com/mxmehl/todo-merger/issues/142)) ([6cfeeaa](https://github.com/mxmehl/todo-merger/commit/6cfeeaa12cca9e93e8c3cf87fd7533803ff91fa4))
+* **deps:** update mxmehl/latest-release-vulnerability-status action to v1.2.3 ([#147](https://github.com/mxmehl/todo-merger/issues/147)) ([17563b9](https://github.com/mxmehl/todo-merger/commit/17563b93df7ac23a2d51777f97777ecdf237cedf))
+* **deps:** update mxmehl/latest-release-vulnerability-status action to v1.2.4 ([#149](https://github.com/mxmehl/todo-merger/issues/149)) ([8393ba1](https://github.com/mxmehl/todo-merger/commit/8393ba1b293885d057f2ba5a47c2c9a99c3eb545))
+* **deps:** update zizmorcore/zizmor-action action to v0.5.5 ([#153](https://github.com/mxmehl/todo-merger/issues/153)) ([87e2484](https://github.com/mxmehl/todo-merger/commit/87e248420921eb7d60cf6b9da62b91a80eb8b468))
+
 ## [1.4.0](https://github.com/mxmehl/todo-merger/compare/v1.3.2...v1.4.0) (2026-04-22)
 
 
