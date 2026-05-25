@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.2](https://github.com/mxmehl/todo-merger/compare/v1.4.1...v1.4.2) (2026-05-25)
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#157](https://github.com/mxmehl/todo-merger/issues/157)) ([b8ff871](https://github.com/mxmehl/todo-merger/commit/b8ff87169d2fdc90ac315e4b351b6b29a25c6d61))
+* **deps:** update zizmorcore/zizmor-action action to v0.5.6 ([#155](https://github.com/mxmehl/todo-merger/issues/155)) ([3d916b9](https://github.com/mxmehl/todo-merger/commit/3d916b98be77b896b4539d3759a5d837bf1c3db6))
+
 ## [1.4.1](https://github.com/mxmehl/todo-merger/compare/v1.4.0...v1.4.1) (2026-05-19)
 
 
