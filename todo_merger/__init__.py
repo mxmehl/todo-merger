@@ -192,7 +192,7 @@ def create_app(config_file: str) -> Flask:
         app.config["services"][name] = service
 
     # Track which services are currently unreachable (e.g. VPN-gated instances)
-    app.config["degraded_services"]: dict[str, str] = {}
+    app.config["degraded_services"] = {}
     for name, service in app.config["services"].items():
         if service[1] is None:
             app.config["degraded_services"][name] = "Could not connect during startup"
