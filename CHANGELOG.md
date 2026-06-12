@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/mxmehl/todo-merger/compare/v1.4.2...v1.5.0) (2026-06-12)
+
+
+### 🚀 New Features
+
+* add command to list todos via CLI command ([#161](https://github.com/mxmehl/todo-merger/issues/161)) ([3cd092d](https://github.com/mxmehl/todo-merger/commit/3cd092d18843612c613a4ad87f70fbe647e603b1))
+
 ## [1.4.2](https://github.com/mxmehl/todo-merger/compare/v1.4.1...v1.4.2) (2026-06-08)
 
 
