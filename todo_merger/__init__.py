@@ -82,6 +82,25 @@ parser_stop = subparsers.add_parser(
     "stop",
     help="Stop the running todo-merger background instance",
 )
+parser_list = subparsers.add_parser(
+    "list",
+    help="List all open tasks with full metadata and exit",
+)
+parser_list.add_argument(
+    "--plain",
+    help="Output human-readable text instead of JSON",
+    action="store_true",
+)
+parser_list.add_argument(
+    "--table",
+    help="Output a compact table (columns: rank, title, URL)",
+    action="store_true",
+)
+parser_list.add_argument(
+    "--cache",
+    help="Use cached data instead of fetching fresh from APIs",
+    action="store_true",
+)
 
 
 def configure_logger(args: argparse.Namespace) -> logging.Logger:
@@ -165,7 +184,7 @@ def load_app_services_config(
     return service_objects
 
 
-def create_app(config_file: str) -> Flask:
+def create_app(config_file: str, *, skip_sass: bool = False, skip_logins: bool = False) -> Flask:
     """Create Flask App."""
     # Initiate Flask app
     app = Flask(__name__)
@@ -179,17 +198,19 @@ def create_app(config_file: str) -> Flask:
     logging.getLogger("werkzeug").setLevel(logging.root.level)
 
     # Configure and compile Sass to CSS
-    install_dart_sass()  # downloads dart to venv
-    projroot = Path(__file__).parent.resolve()
-    compile_directory(projroot / Path("static/sass"), dest=projroot / Path("static/css"))
+    if not skip_sass:
+        install_dart_sass()  # downloads dart to venv
+        projroot = Path(__file__).parent.resolve()
+        compile_directory(projroot / Path("static/sass"), dest=projroot / Path("static/css"))
 
     # Set a secret key for the session
     app.secret_key = str(uuid.uuid4().hex)
 
     # Load app config and login to services (e.g. GitHub, GitLab, Gitea)
     app.config["services"] = {}
-    for name, service in load_app_services_config(config_file).items():
-        app.config["services"][name] = service
+    if not skip_logins:
+        for name, service in load_app_services_config(config_file).items():
+            app.config["services"][name] = service
 
     # Track which services are currently unreachable (e.g. VPN-gated instances)
     app.config["degraded_services"] = {}
@@ -220,7 +241,9 @@ def create_app(config_file: str) -> Flask:
         app.config["display"][display_cfg] = app.config["display"].get(display_cfg, True)
 
     # Get private-tasks-repo config
-    if private_tasks_repo_config := get_app_config(
+    if skip_logins:
+        app.config["private_tasks_repo"] = None
+    elif private_tasks_repo_config := get_app_config(
         config_file, "private-tasks-repo", warn_on_missing_key=False
     ):
         app.config["private_tasks_repo"] = private_tasks_repo_config
@@ -254,6 +277,100 @@ def create_app(config_file: str) -> Flask:
     return app
 
 
+def cli_list_issues(config_file: str, *, use_cache: bool, plain: bool, table: bool) -> None:  # noqa: PLR0915
+    """Fetch all issues and print them to stdout, then exit."""
+    import json  # noqa: PLC0415
+
+    from ._cache import read_all_instances_cache, update_last_seen  # noqa: PLC0415
+    from ._config import read_issues_config  # noqa: PLC0415
+    from ._issues import (  # noqa: PLC0415
+        ISSUE_RANKING_TABLE,
+        apply_user_issue_config,
+        get_all_issues,
+    )
+
+    rank_names: dict[int, str] = {v: k for k, v in ISSUE_RANKING_TABLE.items()}
+
+    app = create_app(config_file=config_file, skip_sass=True, skip_logins=use_cache)
+    with app.app_context():
+        if use_cache:
+            issues = read_all_instances_cache()
+            degraded: dict[str, str] = {}
+        else:
+            issues, degraded = get_all_issues()
+            update_last_seen(issues=issues)
+
+        config = read_issues_config()
+        issues = apply_user_issue_config(issues=issues, issue_config_dict=config)
+
+    if degraded:
+        for svc_name, err in degraded.items():
+            print(
+                f"WARNING: Service '{svc_name}' is unreachable \u2014 showing cached data. ({err})",
+                file=sys.stderr,
+            )
+
+    if not issues:
+        print("No issues found.")
+        return
+
+    if table:
+        # Compact table: rank | title | URL (sorted by rank, ascending)
+        rank_col_w = 8
+        # Determine title column width based on terminal or a sensible default
+        import shutil  # noqa: PLC0415
+
+        sorted_issues = sorted(issues, key=lambda i: i.rank)
+
+        term_width = shutil.get_terminal_size((120, 24)).columns
+        # Use short clickable hyperlinks (OSC 8); display text is the ref or "link"
+        link_col_w = max((len(i.ref or "link") for i in sorted_issues), default=4)
+        title_w = max(5, term_width - rank_col_w - link_col_w - 6)  # 6 for separators/padding
+
+        header = f"{'Rank':<{rank_col_w}}{'Title':<{title_w}}  {'Link'}"
+        print(header)
+        print("-" * len(header))
+        for issue in sorted_issues:
+            rank_label = rank_names.get(int(issue.rank), str(issue.rank))
+            title_trunc = (
+                issue.title[: title_w - 1] + "\u2026" if len(issue.title) > title_w else issue.title
+            )
+            # OSC 8 terminal hyperlink: clickable text in supporting terminals
+            link_text = issue.ref or "link"
+            hyperlink = (
+                f"\033]8;;{issue.web_url}\033\\{link_text}\033]8;;\033\\" if issue.web_url else "-"
+            )
+            print(f"{rank_label:<{rank_col_w}}{title_trunc:<{title_w}}  {hyperlink}")
+    elif plain:
+        total = len(issues)
+        for idx, issue in enumerate(issues, start=1):
+            rank_label = rank_names.get(int(issue.rank), str(issue.rank))
+            issue_type = "PR" if issue.pull else "Issue"
+            todolist_label = "yes" if issue.todolist else "no"
+            labels_str = ", ".join(issue.labels) if issue.labels else "-"
+            assignees_str = (
+                ", ".join(issue.assignee_users)
+                if isinstance(issue.assignee_users, list)
+                else issue.assignee_users
+            ) or "-"
+
+            print(f"[{idx}/{total}] {issue.title}")
+            print(f"  Service:   {issue.service} | Instance: {issue.instance}")
+            print(f"  Type:      {issue_type} | Rank: {rank_label} | Todolist: {todolist_label}")
+            print(f"  Ref:       {issue.ref or '-'}")
+            print(f"  URL:       {issue.web_url or '-'}")
+            print(f"  Labels:    {labels_str}")
+            print(f"  Milestone: {issue.milestone_title or '-'}")
+            print(f"  Epic:      {issue.epic_title or '-'}")
+            print(f"  Due:       {issue.due_date or '-'}")
+            print(f"  Updated:   {issue.updated_at_display or '-'}")
+            print(f"  Assignees: {assignees_str}")
+            if idx < total:
+                print()
+    else:
+        print(json.dumps([issue.convert_to_dict() for issue in issues], indent=2, default=str))
+
+
 def run_server(config_file: str, port: int) -> None:
     """Run the Flask server."""
     app = create_app(config_file=config_file)
@@ -280,6 +397,16 @@ def main() -> None:
                 f"PID file {args.pidfile} does not seem to exist. The app does not seem to run "
                 "normally or at all. Check your task manager and process list."
             )
+
+    # List issues if requested
+    if args.command == "list":
+        cli_list_issues(
+            config_file=args.config_file,
+            use_cache=args.cache,
+            plain=args.plain,
+            table=args.table,
+        )
+        sys.exit()
 
     # Start app
     print(f"ToDo Merger will be available on http://localhost:{args.port}")
