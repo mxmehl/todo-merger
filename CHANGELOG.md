@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/mxmehl/todo-merger/compare/v2.0.0...v2.1.0) (2026-06-15)
+
+
+### 🚀 New Features
+
+* fetch issues asynchronously ([#167](https://github.com/mxmehl/todo-merger/issues/167)) ([ab26e44](https://github.com/mxmehl/todo-merger/commit/ab26e447df0012f1ed129fd797dbf8333bc1575b))
+
 ## [2.0.0](https://github.com/mxmehl/todo-merger/compare/v1.5.0...v2.0.0) (2026-06-15)
 
 
