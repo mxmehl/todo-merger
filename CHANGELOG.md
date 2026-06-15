@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0](https://github.com/mxmehl/todo-merger/compare/v1.5.0...v2.0.0) (2026-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* restructure command layout, especially for web dashboard ([#166](https://github.com/mxmehl/todo-merger/issues/166))
+
+### 🚀 New Features
+
+* add a create and list-labels command to create new issues in the private tasks repo ([#165](https://github.com/mxmehl/todo-merger/issues/165)) ([7ddcd8b](https://github.com/mxmehl/todo-merger/commit/7ddcd8b35c8b719a0fecc38bdd04e4445629032a))
+* restructure command layout, especially for web dashboard ([#166](https://github.com/mxmehl/todo-merger/issues/166)) ([5bf04c0](https://github.com/mxmehl/todo-merger/commit/5bf04c09c95037e334beb539b38dcb2dfb0399ee))
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#163](https://github.com/mxmehl/todo-merger/issues/163)) ([eae9768](https://github.com/mxmehl/todo-merger/commit/eae9768d70a2a48915b9a4ca24a48c3934566449))
+
 ## [1.5.0](https://github.com/mxmehl/todo-merger/compare/v1.4.2...v1.5.0) (2026-06-12)
 
 
