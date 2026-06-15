@@ -4,7 +4,7 @@ from typing import Any
 
 from gitlab import Gitlab
 
-from ._helpers import convert_to_datetime, generate_instance_id, sort_assignees
+from ._helpers import convert_to_datetime, dedup_by_uid, generate_instance_id, sort_assignees
 from ._types import IssueItem
 
 
@@ -72,4 +72,4 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
         _import_gitlab_issues(issues=merge_requests_reviews, myuser=myuser, instance_id=instance_id)
     )
 
-    return issues
+    return dedup_by_uid(issues)

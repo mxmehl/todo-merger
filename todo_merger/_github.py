@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from github import AuthenticatedUser, Github, Issue
 
-from ._helpers import convert_to_datetime, sort_assignees
+from ._helpers import convert_to_datetime, dedup_by_uid, sort_assignees
 from ._types import IssueItem
 
 
@@ -70,4 +70,4 @@ def github_get_issues(github: Github) -> list[IssueItem]:
     issues.extend(_import_github_issues(issues=assigned_issues, myuser=myuser.login))
     issues.extend(_import_github_issues(issues=review_requests, myuser=myuser.login))
 
-    return issues
+    return dedup_by_uid(issues)

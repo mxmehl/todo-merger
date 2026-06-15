@@ -7,6 +7,12 @@ from datetime import datetime, timezone
 from dateutil import parser
 
 
+def dedup_by_uid(issues: list) -> list:
+    """Return issues with duplicates removed, keeping first occurrence per uid."""
+    seen: set[str] = set()
+    return [i for i in issues if not (i.uid in seen or seen.add(i.uid))]
+
+
 def generate_instance_id(url: str) -> str:
     """Return a short, stable identifier for a service instance URL."""
     return hashlib.md5(url.encode(), usedforsecurity=False).hexdigest()[:6]
