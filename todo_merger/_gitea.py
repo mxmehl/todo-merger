@@ -4,7 +4,7 @@ import logging
 
 import httpx
 
-from ._helpers import convert_to_datetime, generate_instance_id, sort_assignees
+from ._helpers import convert_to_datetime, dedup_by_uid, generate_instance_id, sort_assignees
 from ._types import IssueItem
 
 
@@ -118,4 +118,4 @@ def gitea_get_issues(gitea: Gitea) -> list[IssueItem]:
     issues.extend(_import_gitea_issues(assigned, myuser, instance_id))
     issues.extend(_import_gitea_issues(review_requested, myuser, instance_id))
 
-    return issues
+    return dedup_by_uid(issues)
