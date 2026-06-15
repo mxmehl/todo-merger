@@ -11,15 +11,21 @@ class MSPlannerFile:  # pylint: disable=too-few-public-methods
     """Class to parse Microsoft Planner JSON export files."""
 
     def __init__(self, file: str) -> None:
+        if not file:
+            msg = "MS Planner export file path is empty"
+            raise ValueError(msg)
+        self.file = file
 
+    def load(self) -> list[dict]:
+        """Read and parse the export file on demand."""
         try:
-            with open(file, encoding="UTF-8") as f:
-                self.data = json.load(f)
+            with open(self.file, encoding="UTF-8") as f:
+                return json.load(f)
         except FileNotFoundError as err:
-            msg = f"Could not find MS Planner export file '{file}'"
+            msg = f"Could not find MS Planner export file '{self.file}'"
             raise FileNotFoundError(msg) from err
         except json.JSONDecodeError as err:
-            msg = f"Could not parse MS Planner export file '{file}'"
+            msg = f"Could not parse MS Planner export file '{self.file}'"
             raise ValueError(msg) from err
 
 
@@ -56,8 +62,4 @@ def _import_msplannerfile_issues(issues: list[dict]) -> list[IssueItem]:
 
 def msplannerfile_get_issues(msplannerfile: MSPlannerFile) -> list[IssueItem]:
     """Get all issues assigned to authenticated user."""
-    issues: list[IssueItem] = []
-
-    issues.extend(_import_msplannerfile_issues(issues=msplannerfile.data))
-
-    return issues
+    return _import_msplannerfile_issues(issues=msplannerfile.load())
