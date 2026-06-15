@@ -1,6 +1,6 @@
 # ToDo Merger
 
-Get a unified overview of all issues and tasks assigned to you across multiple platforms — in one local web dashboard.
+Get a unified overview of all issues and tasks assigned to you across multiple platforms. A local web dashboard that aggregates GitHub, GitLab, Gitea, and Microsoft Planner into a single view, with personal prioritisation and a private task list. Additionally, a CLI for quick access to your tasks and labels.
 
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue)](LICENSE.txt)
@@ -16,7 +16,8 @@ Get a unified overview of all issues and tasks assigned to you across multiple p
 - **New issue highlighting** — issues you haven't seen before are highlighted until you dismiss them
 - **Private task creation** — create new issues directly in a configured private repository (GitHub, GitLab, or Gitea) from within the dashboard
 - **Configurable display** — toggle which metadata columns are shown (labels, milestones, epics, assignees, due dates, refs, …)
-- **Daemon mode** — run as a background process with `--daemon` / `stop`
+- **Daemon mode** — run as a background process with `todo-merger web -d` / `todo-merger web stop`
+- **CLI** — quickly list all open tasks as JSON, a compact table, or verbose human-readable output; create new issues and list available labels from the private tasks repo
 - **Fast cache** — configurable cache timeout (default 10 minutes) avoids hammering the APIs on every page load; manual refresh available at any time
 
 
@@ -55,28 +56,38 @@ uv tool install todo-merger  # uv
 
 ## Usage
 
-Please see `todo-merger --help` for the latest usage instructions. In general, the app is started with:
+Please see `todo-merger --help` for the latest usage instructions.
 
 ```sh
-todo-merger [options] [command]
+todo-merger [global options] <command> [command options]
 ```
 
-Open <http://localhost:8636> in your browser after starting.
+**Global options:**
 
-**Important options:**
+| Flag | Description |
+|------|-------------|
+| `-c`, `--config-file` | Path to the config file (default: `~/.config/todo-merger/config.toml`) |
+| `-v` | INFO logging |
+| `-vv` | DEBUG logging |
+| `-vvv` | DEBUG logging including verbose HTTP client logs |
+| `--version` | Show version and exit |
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-c`, `--config-file` | Path to the config file | `~/.config/todo-merger/config.toml` |
-| `-d`, `--daemon` | Run in the background, logging to a file | — |
-| `-v` | INFO logging | — |
-| `-vv` | DEBUG logging | — |
-
-**Important Commands:**
+**Commands:**
 
 | Command | Description |
 |---------|-------------|
-| `stop` | Stop a running background instance |
+| `web` | Start the web interface (open <http://localhost:8636>) |
+| `web -d` | Start in daemon (background) mode |
+| `web stop` | Stop a running background instance |
+| `web --port PORT` | Use a custom port |
+| `list` | List all open tasks as JSON |
+| `list --table` | Compact table view (rank, title, clickable link) |
+| `list --plain` | Verbose human-readable output |
+| `list --cache` | Use cached data without fetching from APIs |
+| `labels` | List available labels from the private tasks repo |
+| `create TITLE` | Create a new issue in the private tasks repo |
+| `create TITLE --rank pin` | Create and immediately rank the issue |
+| `create TITLE --label bug` | Create with a label (repeatable) |
 
 
 ## Configuration
