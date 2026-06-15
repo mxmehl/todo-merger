@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/mxmehl/todo-merger/compare/v2.1.0...v2.1.1) (2026-06-15)
+
+
+### 🔥 Bug Fixes
+
+* reload MS Planner file upon request, not only at startup ([#170](https://github.com/mxmehl/todo-merger/issues/170)) ([57eff0e](https://github.com/mxmehl/todo-merger/commit/57eff0ef7ce3a5dfc7ebde809057a286392d39ac))
+* remove duplicates if user is both assigned and reviewer ([#169](https://github.com/mxmehl/todo-merger/issues/169)) ([f0388d6](https://github.com/mxmehl/todo-merger/commit/f0388d647077461d4ba15096dde3c9b18b1d31a9))
+
 ## [2.1.0](https://github.com/mxmehl/todo-merger/compare/v2.0.0...v2.1.0) (2026-06-15)
 
 
