@@ -1,6 +1,7 @@
 """Handling issues which come in from different sources."""
 
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from flask import current_app
 
@@ -42,12 +43,41 @@ def _fetch_service_issues(
     return []
 
 
+def _fetch_one_service(
+    svc_type: str,
+    login_obj: object,
+    name: str,
+) -> tuple[str, list[IssueItem] | None, str | None]:
+    """Fetch issues for a single service. Returns (name, issues_or_None, error_or_None).
+
+    Designed to run inside a ThreadPoolExecutor — no Flask context needed.
+    """
+    try:
+        svc_issues = _fetch_service_issues(svc_type, login_obj, name)
+        for issue in svc_issues:
+            issue.instance = name
+    except Exception as exc:  # noqa: BLE001
+        error_msg = f"{type(exc).__name__}: {exc}"
+        logging.warning(
+            "Failed to fetch issues for service '%s' (%s). Falling back to cached data. Error: %s",
+            name,
+            svc_type,
+            error_msg,
+            exc_info=True,
+        )
+        return name, None, error_msg
+    else:
+        return name, svc_issues, None
+
+
 def get_all_issues() -> tuple[list[IssueItem], dict[str, str]]:
     """Get all issues from the supported services.
 
     Returns a tuple of (all_issues, degraded_services) where degraded_services
     maps service name to an error message for any instance that could not be
     reached. Stale cached data is used as a fallback for unreachable instances.
+
+    Services are fetched in parallel using threads.
     """
     # Import here to avoid circular dependency
     from ._auth import try_service_login  # noqa: PLC0415
@@ -56,6 +86,8 @@ def get_all_issues() -> tuple[list[IssueItem], dict[str, str]]:
     issues: list[IssueItem] = []
     degraded: dict[str, str] = {}
 
+    # Phase 1: re-login attempts and unreachable handling (main thread, mutates app config)
+    fetchable: list[tuple[str, str, object]] = []  # (name, svc_type, login_obj)
     for name, service in current_app.config["services"].items():
         svc_type, login_obj, credentials = service[0], service[1], service[2]
 
@@ -64,10 +96,9 @@ def get_all_issues() -> tuple[list[IssueItem], dict[str, str]]:
             logging.info("Attempting re-login for service '%s'", name)
             login_obj = try_service_login(svc_type, credentials)
             if login_obj is not None:
-                # Update stored login object so subsequent requests reuse it
                 current_app.config["services"][name] = (svc_type, login_obj, credentials)
 
-        # Still no login object after retry — treat as unreachable without raising
+        # Still no login object after retry — treat as unreachable
         if login_obj is None:
             error_msg = "Service unreachable (no login object available)"
             logging.warning(
@@ -79,34 +110,30 @@ def get_all_issues() -> tuple[list[IssueItem], dict[str, str]]:
             issues.extend(read_instance_cache(name))
             continue
 
-        try:
-            svc_issues = _fetch_service_issues(svc_type, login_obj, name)
+        fetchable.append((name, svc_type, login_obj))
 
-            # Tag each issue with its config instance name
-            for issue in svc_issues:
-                issue.instance = name
+    # Phase 2: fetch all reachable services in parallel
+    # max_workers capped at 8; upgrade to asyncio if service count grows much beyond that
+    with ThreadPoolExecutor(max_workers=min(len(fetchable), 8) or 1) as pool:
+        futures = {
+            pool.submit(_fetch_one_service, svc_type, login_obj, name): name
+            for name, svc_type, login_obj in fetchable
+        }
 
-            # Persist fresh data and clear any previous degraded state
-            write_instance_cache(name, svc_issues)
-            current_app.config["degraded_services"].pop(name, None)
-            issues.extend(svc_issues)
+        for future in as_completed(futures):
+            name, svc_issues, error_msg = future.result()
 
-        except Exception as exc:  # noqa: BLE001
-            error_msg = f"{type(exc).__name__}: {exc}"
-            logging.warning(
-                "Failed to fetch issues for service '%s' (%s). "
-                "Falling back to cached data. Error: %s",
-                name,
-                svc_type,
-                error_msg,
-                exc_info=True,
-            )
-            degraded[name] = error_msg
-            current_app.config["degraded_services"][name] = error_msg
-            # Fall back to stale per-instance cache
-            stale = read_instance_cache(name)
-            logging.info("Using %d stale cached issue(s) for service '%s'", len(stale), name)
-            issues.extend(stale)
+            if svc_issues is not None:
+                write_instance_cache(name, svc_issues)
+                current_app.config["degraded_services"].pop(name, None)
+                issues.extend(svc_issues)
+            else:
+                assert error_msg is not None  # noqa: S101
+                degraded[name] = error_msg
+                current_app.config["degraded_services"][name] = error_msg
+                stale = read_instance_cache(name)
+                logging.info("Using %d stale cached issue(s) for service '%s'", len(stale), name)
+                issues.extend(stale)
 
     return issues, degraded
 
