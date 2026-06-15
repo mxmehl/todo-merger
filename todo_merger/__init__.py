@@ -39,24 +39,11 @@ __version__ = version("todo-merger")
 parser = argparse.ArgumentParser(
     description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
-subparsers = parser.add_subparsers(dest="command", help="Special commands")
+subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
 parser.add_argument(
     "-c", "--config-file", help="Path to the app config file ", default=default_config_file_path()
 )
-parser.add_argument(
-    "-d",
-    "--daemon",
-    help="Start the app in the background and log to a file",
-    action="store_true",
-)
-parser.add_argument(
-    "-l", "--logfile", help="Path to the log file (in daemon mode)", default=LOGFILE
-)
-parser.add_argument(
-    "-p", "--pidfile", help="Path to the PID file (in daemon mode)", default=PIDFILE
-)
-parser.add_argument("--port", help="Port the application runs on", type=int, default=8636)
 parser.add_argument(
     "-v",
     "--verbose",
@@ -77,11 +64,29 @@ parser.add_argument(
 )
 parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
-# Special commands
-parser_stop = subparsers.add_parser(
-    "stop",
-    help="Stop the running todo-merger background instance",
+# web subcommand (start/stop the web interface)
+parser_web = subparsers.add_parser(
+    "web",
+    help="Start the web interface",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
+parser_web.add_argument(
+    "-d",
+    "--daemon",
+    help="Start the app in the background and log to a file",
+    action="store_true",
+)
+parser_web.add_argument(
+    "-l", "--logfile", help="Path to the log file (in daemon mode)", default=LOGFILE
+)
+parser_web.add_argument(
+    "-p", "--pidfile", help="Path to the PID file (in daemon mode)", default=PIDFILE
+)
+parser_web.add_argument("--port", help="Port the application runs on", type=int, default=8636)
+web_subparsers = parser_web.add_subparsers(dest="web_command")
+web_subparsers.add_parser("stop", help="Stop the running background instance")
+
+# list subcommand
 parser_list = subparsers.add_parser(
     "list",
     help="List all open tasks with full metadata and exit",
@@ -102,11 +107,13 @@ parser_list.add_argument(
     action="store_true",
 )
 
-parser_list_labels = subparsers.add_parser(
-    "list-labels",
+# labels subcommand
+parser_labels = subparsers.add_parser(
+    "labels",
     help="List available labels from the private tasks repository",
 )
 
+# create subcommand
 parser_create = subparsers.add_parser(
     "create",
     help="Create a new issue in the private tasks repository",
@@ -450,21 +457,12 @@ def main() -> None:
     # Configure logger
     logger = configure_logger(args=args)
 
-    # Stop app if requested
-    if args.command == "stop":
-        try:
-            with open(args.pidfile, encoding="utf-8") as pidreader:
-                pid = int(pidreader.read())
-                print(f"Sending SIGTERM to process {pid}")
-                kill(pid, signal.SIGTERM)
-                sys.exit()
-        except FileNotFoundError:
-            sys.exit(
-                f"PID file {args.pidfile} does not seem to exist. The app does not seem to run "
-                "normally or at all. Check your task manager and process list."
-            )
+    # Show help if no command given
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
 
-    # List issues if requested
+    # List issues
     if args.command == "list":
         cli_list_issues(
             config_file=args.config_file,
@@ -474,12 +472,12 @@ def main() -> None:
         )
         sys.exit()
 
-    # List labels if requested
-    if args.command == "list-labels":
+    # List labels
+    if args.command == "labels":
         cli_list_labels(config_file=args.config_file)
         sys.exit()
 
-    # Create issue if requested
+    # Create issue
     if args.command == "create":
         cli_create_issue(
             config_file=args.config_file,
@@ -489,21 +487,39 @@ def main() -> None:
         )
         sys.exit()
 
-    # Start app
-    print(f"ToDo Merger will be available on http://localhost:{args.port}")
-    logging.info("Config file: %s", args.config_file)
-    logging.info("Log file: %s", args.logfile)
-    logging.info("PID file: %s", args.pidfile)
-    if args.daemon:
-        if daemon is None:
-            sys.exit(
-                "Daemonizing this app is not possible on your system, e.g. because it's Windows."
-            )
-        with daemon.DaemonContext(pidfile=daemon.pidfile.TimeoutPIDLockFile(args.pidfile)):
-            # Add file logger
-            logger.addHandler(logging.FileHandler(args.logfile))
+    # Web interface
+    if args.command == "web":
+        # Stop daemon
+        if args.web_command == "stop":
+            try:
+                with open(args.pidfile, encoding="utf-8") as pidreader:
+                    pid = int(pidreader.read())
+                    print(f"Sending SIGTERM to process {pid}")
+                    kill(pid, signal.SIGTERM)
+                    sys.exit()
+            except FileNotFoundError:
+                sys.exit(
+                    f"PID file {args.pidfile} does not seem to exist. "
+                    "The app does not seem to run normally or at all. "
+                    "Check your task manager and process list."
+                )
 
-            # Run server
+        # Start server
+        print(f"ToDo Merger will be available on http://localhost:{args.port}")
+        logging.info("Config file: %s", args.config_file)
+        logging.info("Log file: %s", args.logfile)
+        logging.info("PID file: %s", args.pidfile)
+        if args.daemon:
+            if daemon is None:
+                sys.exit(
+                    "Daemonizing this app is not possible on your system, "
+                    "e.g. because it's Windows."
+                )
+            with daemon.DaemonContext(pidfile=daemon.pidfile.TimeoutPIDLockFile(args.pidfile)):
+                # Add file logger
+                logger.addHandler(logging.FileHandler(args.logfile))
+
+                # Run server
+                run_server(config_file=args.config_file, port=args.port)
+        else:
             run_server(config_file=args.config_file, port=args.port)
-    else:
-        run_server(config_file=args.config_file, port=args.port)
