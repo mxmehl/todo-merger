@@ -1,11 +1,10 @@
 """Gitea API client and issue fetching functions."""
 
-import hashlib
 import logging
 
 import httpx
 
-from ._helpers import convert_to_datetime, sort_assignees
+from ._helpers import convert_to_datetime, generate_instance_id, sort_assignees
 from ._types import IssueItem
 
 
@@ -111,7 +110,7 @@ def gitea_get_issues(gitea: Gitea) -> list[IssueItem]:
     """Get all issues and PRs assigned to authenticated user."""
     issues: list[IssueItem] = []
     myuser = str(gitea.user["login"])
-    instance_id = hashlib.md5(gitea.url.encode(), usedforsecurity=False).hexdigest()[:6]
+    instance_id = generate_instance_id(gitea.url)
 
     assigned = gitea.search_issues(assigned=True, state="open")
     review_requested = gitea.search_issues(review_requested=True, state="open")

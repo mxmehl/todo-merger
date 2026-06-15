@@ -102,6 +102,33 @@ parser_list.add_argument(
     action="store_true",
 )
 
+parser_list_labels = subparsers.add_parser(
+    "list-labels",
+    help="List available labels from the private tasks repository",
+)
+
+parser_create = subparsers.add_parser(
+    "create",
+    help="Create a new issue in the private tasks repository",
+)
+parser_create.add_argument(
+    "title",
+    nargs="+",
+    help="Title of the new issue",
+)
+parser_create.add_argument(
+    "--rank",
+    choices=["pin", "high", "normal", "low"],
+    default=None,
+    help="Set rank for the new issue",
+)
+parser_create.add_argument(
+    "--label",
+    action="append",
+    default=[],
+    help="Add a label to the issue (can be repeated)",
+)
+
 
 def configure_logger(args: argparse.Namespace) -> logging.Logger:
     """Set logging options."""
@@ -371,6 +398,45 @@ def cli_list_issues(config_file: str, *, use_cache: bool, plain: bool, table: bo
         print(json.dumps([issue.convert_to_dict() for issue in issues], indent=2, default=str))
 
 
+def cli_list_labels(config_file: str) -> None:
+    """Print available labels from the private tasks repository."""
+    from ._views import private_tasks_repo_get_labels  # noqa: PLC0415
+
+    app = create_app(config_file=config_file, skip_sass=True)
+    with app.app_context():
+        if app.config.get("private_tasks_repo") is None:
+            sys.exit("No 'private-tasks-repo' configured. Cannot list labels.")
+        labels = private_tasks_repo_get_labels()
+
+    for name in sorted(labels):
+        print(name)
+
+
+def cli_create_issue(config_file: str, title: str, rank: str | None, labels: list[str]) -> None:
+    """Create a new issue in the private tasks repository."""
+    from ._config import read_issues_config, write_issues_config  # noqa: PLC0415
+    from ._issues import ISSUE_RANKING_TABLE  # noqa: PLC0415
+    from ._views import private_tasks_repo_create_issue  # noqa: PLC0415
+
+    app = create_app(config_file=config_file, skip_sass=True)
+    with app.app_context():
+        if app.config.get("private_tasks_repo") is None:
+            sys.exit("No 'private-tasks-repo' configured. Cannot create issues.")
+        web_url, uid = private_tasks_repo_create_issue(title=title, labels=labels)
+
+        # Apply ranking if requested
+        if rank:
+            rank_int = ISSUE_RANKING_TABLE[rank]
+            config: dict[str, dict[str, int | bool]] = read_issues_config()
+            if uid not in config:
+                config[uid] = {}
+            config[uid]["rank"] = rank_int
+            write_issues_config(issues_config=config)
+            logging.info("Set rank '%s' for new issue %s", rank, uid)
+
+    print(web_url)
+
+
 def run_server(config_file: str, port: int) -> None:
     """Run the Flask server."""
     app = create_app(config_file=config_file)
@@ -405,6 +471,21 @@ def main() -> None:
             use_cache=args.cache,
             plain=args.plain,
             table=args.table,
+        )
+        sys.exit()
+
+    # List labels if requested
+    if args.command == "list-labels":
+        cli_list_labels(config_file=args.config_file)
+        sys.exit()
+
+    # Create issue if requested
+    if args.command == "create":
+        cli_create_issue(
+            config_file=args.config_file,
+            title=" ".join(args.title),
+            rank=args.rank,
+            labels=args.label,
         )
         sys.exit()
 

@@ -1,11 +1,10 @@
 """GitLab issue fetching functions."""
 
-import hashlib
 from typing import Any
 
 from gitlab import Gitlab
 
-from ._helpers import convert_to_datetime, sort_assignees
+from ._helpers import convert_to_datetime, generate_instance_id, sort_assignees
 from ._types import IssueItem
 
 
@@ -47,7 +46,7 @@ def gitlab_get_issues(gitlab: Gitlab) -> list[IssueItem]:
     myuser: str = gitlab.user.username
     # Create a unique enough id for the GitLab instance in case we have more
     # than one. Avoids issue id collisions
-    instance_id = hashlib.md5(gitlab.url.encode(), usedforsecurity=False).hexdigest()[:6]
+    instance_id = generate_instance_id(gitlab.url)
 
     # See https://docs.gitlab.com/ee/api/issues.html
     assigned_issues = gitlab.issues.list(

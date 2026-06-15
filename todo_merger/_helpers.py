@@ -1,9 +1,15 @@
 """Helper functions."""
 
 import contextlib
+import hashlib
 from datetime import datetime, timezone
 
 from dateutil import parser
+
+
+def generate_instance_id(url: str) -> str:
+    """Return a short, stable identifier for a service instance URL."""
+    return hashlib.md5(url.encode(), usedforsecurity=False).hexdigest()[:6]
 
 
 def sort_assignees(assignees: list, my_user_name: str) -> str:

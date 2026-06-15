@@ -130,8 +130,8 @@ def private_tasks_repo_get_labels() -> dict[str, str]:
     return private_tasks_repo_get_github_labels(github=login)
 
 
-def private_tasks_repo_create_issue(title: str, labels: list[str]) -> str:
-    """Create a new issue in the private tasks repository. Returns the web URL
+def private_tasks_repo_create_issue(title: str, labels: list[str]) -> tuple[str, str]:
+    """Create a new issue in the private tasks repository. Returns (web_url, uid)
     of the new issue.
     """
     service, login = (

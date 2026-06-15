@@ -140,7 +140,7 @@ def new_create() -> Response:
         return redirect("/new")
 
     # Create new issue
-    new_url = private_tasks_repo_create_issue(title=title, labels=labels)
+    new_url, _uid = private_tasks_repo_create_issue(title=title, labels=labels)
     flash(f"New issue created: <a href='{new_url}' target='_blank'>{new_url}</a>", "success")
 
     # If user wants back to overview, refresh cache before to also get the newly created issue
