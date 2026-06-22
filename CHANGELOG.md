@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.2](https://github.com/mxmehl/todo-merger/compare/v2.1.1...v2.1.2) (2026-06-22)
+
+
+### 🔥 Bug Fixes
+
+* avoid rank icons to be wrapped in case of long titles ([#175](https://github.com/mxmehl/todo-merger/issues/175)) ([c6a418e](https://github.com/mxmehl/todo-merger/commit/c6a418e0d329ad2773284af01a8ba429baf6eb92))
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#173](https://github.com/mxmehl/todo-merger/issues/173)) ([44f0f1f](https://github.com/mxmehl/todo-merger/commit/44f0f1f421062d57d9a0b0a78ce0b2596e75e545))
+* **deps:** update github actions group to v7 ([#172](https://github.com/mxmehl/todo-merger/issues/172)) ([b478797](https://github.com/mxmehl/todo-merger/commit/b47879766100f1d98d5507b0000b80e05a163e99))
+
 ## [2.1.1](https://github.com/mxmehl/todo-merger/compare/v2.1.0...v2.1.1) (2026-06-15)
 
 
