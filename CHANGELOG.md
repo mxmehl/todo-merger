@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.3](https://github.com/mxmehl/todo-merger/compare/v2.1.2...v2.1.3) (2026-06-29)
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#179](https://github.com/mxmehl/todo-merger/issues/179)) ([511a841](https://github.com/mxmehl/todo-merger/commit/511a841ea9970026432bab49fb32fb65a3a8aa32))
+* **deps:** update actions/setup-python action to v6.3.0 ([#178](https://github.com/mxmehl/todo-merger/issues/178)) ([62f3af3](https://github.com/mxmehl/todo-merger/commit/62f3af372338f482f9f28cbbce9cd1865fba30e7))
+* **deps:** update github actions group ([#176](https://github.com/mxmehl/todo-merger/issues/176)) ([2ba476b](https://github.com/mxmehl/todo-merger/commit/2ba476b5237205cf4b9daed82dad6be18ee5b20f))
+
 ## [2.1.2](https://github.com/mxmehl/todo-merger/compare/v2.1.1...v2.1.2) (2026-06-22)
 
 
