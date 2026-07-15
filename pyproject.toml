@@ -6,6 +6,7 @@ authors = [{ name = "Max Mehl", email = "mail@mehl.mx" }]
 requires-python = ">=3.10,<4"
 readme = "README.md"
 license = "GPL-3.0-only"
+license-files = ["LICENSE", "LICENSES/*"]
 keywords = [
     "github",
     "gitlab",
@@ -45,6 +46,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/mxmehl/todo-merger"
+Changelog = "https://github.com/mxmehl/todo-merger/blob/main/CHANGELOG.md"
 
 [project.scripts]
 todo-merger = "todo_merger.__init__:main"
