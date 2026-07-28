@@ -25,7 +25,7 @@ def try_service_login(
             return gitlab_login(credentials["token"], credentials["url"])
         if service == "gitea":
             return gitea_login(credentials["token"], credentials["url"])
-    except Exception:  # noqa: BLE001
+    except Exception:
         logging.warning(
             "Could not log into service '%s' at '%s'. Will retry on next cache refresh.",
             service,

@@ -115,7 +115,7 @@ def read_all_instances_cache() -> list[IssueItem]:
     return all_issues
 
 
-def get_cache_status(cache_timer: None | datetime, timeout_seconds: int) -> bool:
+def get_cache_status(cache_timer: datetime | None, timeout_seconds: int) -> bool:
     """Find out whether the cache is still valid. Returns False if it must be
     refreshed.
     """
