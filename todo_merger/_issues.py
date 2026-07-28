@@ -56,7 +56,7 @@ def _fetch_one_service(
         svc_issues = _fetch_service_issues(svc_type, login_obj, name)
         for issue in svc_issues:
             issue.instance = name
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         error_msg = f"{type(exc).__name__}: {exc}"
         logging.warning(
             "Failed to fetch issues for service '%s' (%s). Falling back to cached data. Error: %s",
