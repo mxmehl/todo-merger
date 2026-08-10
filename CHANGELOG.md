@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.1.3](https://github.com/mxmehl/todo-merger/compare/v2.1.2...v2.1.3) (2026-08-10)
+
+
+### 🔥 Bug Fixes
+
+* license files in pyproject incorrectly defined ([72923a5](https://github.com/mxmehl/todo-merger/commit/72923a56b8819df620eff7abd334f180e3066f5f))
+
+
+### ⚙️ Chores
+
+* add license-files, repository URL, and changelog URL to pyproject.toml ([#185](https://github.com/mxmehl/todo-merger/issues/185)) ([f2f8a92](https://github.com/mxmehl/todo-merger/commit/f2f8a9231aed0df0c907ce261b75720d797010fc))
+* **deps:** lock file maintenance ([#179](https://github.com/mxmehl/todo-merger/issues/179)) ([511a841](https://github.com/mxmehl/todo-merger/commit/511a841ea9970026432bab49fb32fb65a3a8aa32))
+* **deps:** lock file maintenance ([#180](https://github.com/mxmehl/todo-merger/issues/180)) ([6b90aa9](https://github.com/mxmehl/todo-merger/commit/6b90aa9d79564d996f4c6b69f16961924560dfa8))
+* **deps:** lock file maintenance ([#184](https://github.com/mxmehl/todo-merger/issues/184)) ([3f3b46a](https://github.com/mxmehl/todo-merger/commit/3f3b46a8d352253f9ebfaf012e94728106786a70))
+* **deps:** lock file maintenance ([#187](https://github.com/mxmehl/todo-merger/issues/187)) ([c42ce90](https://github.com/mxmehl/todo-merger/commit/c42ce900c7971c59ff12ecb93a62fb18929eb16f))
+* **deps:** lock file maintenance ([#193](https://github.com/mxmehl/todo-merger/issues/193)) ([76a3d0c](https://github.com/mxmehl/todo-merger/commit/76a3d0c61ef0b3fca8bfb81bf6e6db988b0ea4d2))
+* **deps:** lock file maintenance ([#197](https://github.com/mxmehl/todo-merger/issues/197)) ([d1f540d](https://github.com/mxmehl/todo-merger/commit/d1f540d3f23e57e52f1fc58e5c73a5ca6e9fde27))
+* **deps:** lock file maintenance ([#200](https://github.com/mxmehl/todo-merger/issues/200)) ([8caca59](https://github.com/mxmehl/todo-merger/commit/8caca59c5aa261bf597abf6af5dc529b50d2351a))
+* **deps:** update actions/checkout action to v7.0.1 ([#190](https://github.com/mxmehl/todo-merger/issues/190)) ([a59fdf9](https://github.com/mxmehl/todo-merger/commit/a59fdf9ca60d32cf08f4bce6801635ec4dd08753))
+* **deps:** update actions/setup-python action to v6.3.0 ([#178](https://github.com/mxmehl/todo-merger/issues/178)) ([62f3af3](https://github.com/mxmehl/todo-merger/commit/62f3af372338f482f9f28cbbce9cd1865fba30e7))
+* **deps:** update actions/setup-python action to v7 ([#189](https://github.com/mxmehl/todo-merger/issues/189)) ([3722f02](https://github.com/mxmehl/todo-merger/commit/3722f028878f4f1816d79ff8fb4cfe69ff350c66))
+* **deps:** update astral-sh/setup-uv action to v8.3.0 ([#181](https://github.com/mxmehl/todo-merger/issues/181)) ([957c394](https://github.com/mxmehl/todo-merger/commit/957c39430d17ff0824f3f382768678103a740820))
+* **deps:** update astral-sh/setup-uv action to v8.3.1 ([#182](https://github.com/mxmehl/todo-merger/issues/182)) ([3ec7698](https://github.com/mxmehl/todo-merger/commit/3ec7698a8397154c71b378f114d11dbe206a0d59))
+* **deps:** update astral-sh/setup-uv action to v8.3.2 ([#183](https://github.com/mxmehl/todo-merger/issues/183)) ([0007977](https://github.com/mxmehl/todo-merger/commit/00079772fec643d827ea692364cff81704ef0030))
+* **deps:** update astral-sh/setup-uv action to v9 ([#191](https://github.com/mxmehl/todo-merger/issues/191)) ([772beac](https://github.com/mxmehl/todo-merger/commit/772beac1b09f18d1b7f0587ca8a1387d6e913827))
+* **deps:** update dependency uv_build to &gt;=0.12.0,&lt;0.13.0 ([#195](https://github.com/mxmehl/todo-merger/issues/195)) ([384816c](https://github.com/mxmehl/todo-merger/commit/384816c0421ff5f5b97a076164d5652fd9e1c965))
+* **deps:** update github actions group ([#176](https://github.com/mxmehl/todo-merger/issues/176)) ([2ba476b](https://github.com/mxmehl/todo-merger/commit/2ba476b5237205cf4b9daed82dad6be18ee5b20f))
+* **deps:** update mxmehl/latest-release-vulnerability-status action to v1.3.0 ([#198](https://github.com/mxmehl/todo-merger/issues/198)) ([1245b35](https://github.com/mxmehl/todo-merger/commit/1245b359c9c2aab58af795350900a638d3a17875))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.1 ([#188](https://github.com/mxmehl/todo-merger/issues/188)) ([ae5387a](https://github.com/mxmehl/todo-merger/commit/ae5387a144c57fe99b25f91bd1f41dd017ce38ca))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.2 ([#196](https://github.com/mxmehl/todo-merger/issues/196)) ([3bc69a2](https://github.com/mxmehl/todo-merger/commit/3bc69a2d1bd67fa29d8b0c1df7d19d84a649e73e))
+* **deps:** update zizmorcore/zizmor-action action to v0.6.0 ([#186](https://github.com/mxmehl/todo-merger/issues/186)) ([fc36334](https://github.com/mxmehl/todo-merger/commit/fc36334330e2b3d8a7c947d21b166d9379933783))
+* **deps:** update zizmorcore/zizmor-action action to v0.6.1 ([#192](https://github.com/mxmehl/todo-merger/issues/192)) ([dad7388](https://github.com/mxmehl/todo-merger/commit/dad738839c4e54169be15ed0493eeaa034674917))
+* **deps:** update zizmorcore/zizmor-action action to v0.6.2 ([#199](https://github.com/mxmehl/todo-merger/issues/199)) ([6f74a94](https://github.com/mxmehl/todo-merger/commit/6f74a94477ab8394905674fd3e68eca874ca2cee))
+* disable unnecessary ruff check ([#194](https://github.com/mxmehl/todo-merger/issues/194)) ([323a53b](https://github.com/mxmehl/todo-merger/commit/323a53bbafd35b103181b5609300e6bef68c5685))
+
 ## [2.1.2](https://github.com/mxmehl/todo-merger/compare/v2.1.1...v2.1.2) (2026-06-22)
 
 
