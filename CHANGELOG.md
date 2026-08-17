@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.4](https://github.com/mxmehl/todo-merger/compare/v2.1.3...v2.1.4) (2026-08-17)
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#202](https://github.com/mxmehl/todo-merger/issues/202)) ([ee5fbd9](https://github.com/mxmehl/todo-merger/commit/ee5fbd91ed2d37fc9019e954eeb84c9bd35bc01e))
+
 ## [2.1.3](https://github.com/mxmehl/todo-merger/compare/v2.1.2...v2.1.3) (2026-08-10)
 
 
