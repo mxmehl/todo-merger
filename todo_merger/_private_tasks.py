@@ -1,7 +1,6 @@
 """Functions for dealing with a the private tasks repo."""
 
 import logging
-from typing import cast
 
 from flask import current_app
 from github import AuthenticatedUser, Github
@@ -63,7 +62,7 @@ def private_tasks_repo_create_github_issue(
     (web_url, uid) of the new issue.
     """
     private_tasks_repo = current_app.config["private_tasks_repo"]["repo"]
-    myuser = cast("AuthenticatedUser.AuthenticatedUser", github.get_user())
+    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()
 
     # Create issue
     result = github.get_repo(private_tasks_repo).create_issue(

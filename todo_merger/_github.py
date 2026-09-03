@@ -1,7 +1,6 @@
 """GitHub issue fetching functions."""
 
 from collections.abc import Iterable
-from typing import cast
 from urllib.parse import urlparse
 
 from github import AuthenticatedUser, Github, Issue
@@ -58,7 +57,7 @@ def _import_github_issues(
 def github_get_issues(github: Github) -> list[IssueItem]:
     """Get all issues assigned to authenticated user."""
     issues: list[IssueItem] = []
-    myuser = cast("AuthenticatedUser.AuthenticatedUser", github.get_user())
+    myuser: AuthenticatedUser.AuthenticatedUser = github.get_user()
 
     # See https://docs.github.com/en/rest/issues/issues
     assigned_issues = myuser.get_issues()
