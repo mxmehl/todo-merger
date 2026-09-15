@@ -10,7 +10,12 @@ from dateutil import parser
 def dedup_by_uid(issues: list) -> list:
     """Return issues with duplicates removed, keeping first occurrence per uid."""
     seen: set[str] = set()
-    return [i for i in issues if not (i.uid in seen or seen.add(i.uid))]
+    result = []
+    for i in issues:
+        if i.uid not in seen:
+            seen.add(i.uid)
+            result.append(i)
+    return result
 
 
 def generate_instance_id(url: str) -> str:
