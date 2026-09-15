@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.4](https://github.com/mxmehl/todo-merger/compare/v2.1.3...v2.1.4) (2026-09-15)
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#202](https://github.com/mxmehl/todo-merger/issues/202)) ([ee5fbd9](https://github.com/mxmehl/todo-merger/commit/ee5fbd91ed2d37fc9019e954eeb84c9bd35bc01e))
+* **deps:** lock file maintenance ([#204](https://github.com/mxmehl/todo-merger/issues/204)) ([a46c9f2](https://github.com/mxmehl/todo-merger/commit/a46c9f276de647154a210b7f50b2b665eeed04ca))
+* **deps:** lock file maintenance ([#206](https://github.com/mxmehl/todo-merger/issues/206)) ([be2be88](https://github.com/mxmehl/todo-merger/commit/be2be88e273d4cb4bd9bdb0e8314a4a5a02592e5))
+* **deps:** lock file maintenance ([#209](https://github.com/mxmehl/todo-merger/issues/209)) ([6242450](https://github.com/mxmehl/todo-merger/commit/624245074ae8c2d3b89594984ba79d4486ec3928))
+* **deps:** update astral-sh/setup-uv action to v10 ([#201](https://github.com/mxmehl/todo-merger/issues/201)) ([37413fb](https://github.com/mxmehl/todo-merger/commit/37413fb702d0db2c50f37dbd1bb1ce16e4884bed))
+* **deps:** update astral-sh/setup-uv action to v10.1.0 ([#208](https://github.com/mxmehl/todo-merger/issues/208)) ([2ba5b4a](https://github.com/mxmehl/todo-merger/commit/2ba5b4a41b7e32d0cf95db72134699628c12f65b))
+* **deps:** update zizmorcore/zizmor-action action to v0.6.3 ([#205](https://github.com/mxmehl/todo-merger/issues/205)) ([80c4dfb](https://github.com/mxmehl/todo-merger/commit/80c4dfb4bcf28039d3ac51b06b294ace19951f65))
+* **deps:** update zizmorcore/zizmor-action action to v0.6.4 ([#207](https://github.com/mxmehl/todo-merger/issues/207)) ([412f869](https://github.com/mxmehl/todo-merger/commit/412f869a75b1c9b5cd309120e95fa02e017882b9))
+
 ## [2.1.3](https://github.com/mxmehl/todo-merger/compare/v2.1.2...v2.1.3) (2026-08-10)
 
 
