@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.5](https://github.com/mxmehl/todo-merger/compare/v2.1.4...v2.1.5) (2026-10-16)
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#215](https://github.com/mxmehl/todo-merger/issues/215)) ([aeb45bf](https://github.com/mxmehl/todo-merger/commit/aeb45bf70d0945c693f5dad970087898f2f4cb3f))
+* **deps:** update actions/create-github-app-token action to v3.3.0 ([#220](https://github.com/mxmehl/todo-merger/issues/220)) ([f931edd](https://github.com/mxmehl/todo-merger/commit/f931edd0ebb56cfea7b5537ce1a9b98eacbd458c))
+* **deps:** update astral-sh/setup-uv action to v10.3.0 ([#217](https://github.com/mxmehl/todo-merger/issues/217)) ([d71fdca](https://github.com/mxmehl/todo-merger/commit/d71fdcad97c2597eb570bf9f7d4f6b80b12db8a1))
+* **deps:** update dependency python to 3.15 ([#219](https://github.com/mxmehl/todo-merger/issues/219)) ([8e86abc](https://github.com/mxmehl/todo-merger/commit/8e86abcccdafe79fc22d24b33c93a9dff0da0df5))
+* **deps:** update dependency uv_build to &gt;=0.13.0,&lt;0.14.0 ([#218](https://github.com/mxmehl/todo-merger/issues/218)) ([14aaaee](https://github.com/mxmehl/todo-merger/commit/14aaaeeea51333c1cdfe6eaf4680a351c8cd2566))
+
 ## [2.1.4](https://github.com/mxmehl/todo-merger/compare/v2.1.3...v2.1.4) (2026-10-05)
 
 
