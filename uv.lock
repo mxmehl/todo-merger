@@ -895,7 +895,7 @@ wheels = [
 
 [[package]]
 name = "todo-merger"
-version = "2.1.4"
+version = "2.1.5"
 source = { editable = "." }
 default-groups = "all"
 dependencies = [
