@@ -912,7 +912,7 @@ wheels = [
 
 [[package]]
 name = "todo-merger"
-version = "2.1.5"
+version = "2.1.6"
 source = { editable = "." }
 default-groups = "all"
 dependencies = [
