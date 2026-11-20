@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
 
@@ -124,7 +124,7 @@ def get_cache_status(cache_timer: datetime | None, timeout_seconds: int) -> bool
         return False
 
     # Get difference between now and start of cache timer
-    cache_diff = datetime.now(tz=timezone.utc) - cache_timer
+    cache_diff = datetime.now(tz=UTC) - cache_timer
     logging.debug("Current cache time difference: %s", cache_diff)
     if cache_diff > timedelta(seconds=timeout_seconds):
         logging.info("Cache older than defined. Requesting all issues anew")
@@ -164,7 +164,7 @@ def add_to_seen_issues(new_unseen_issues: list[str]) -> None:
     # Extend seen issues with new list
     for new_issue in new_unseen_issues:
         logging.debug("Marking issue %s as seen", new_issue)
-        seen_issues_cached[new_issue] = {"first_seen": int(datetime.now(timezone.utc).timestamp())}
+        seen_issues_cached[new_issue] = {"first_seen": int(datetime.now(UTC).timestamp())}
 
     # Update file
     _write_cache_file(filename="seen-issues.json", content=seen_issues_cached)
@@ -178,7 +178,7 @@ def update_last_seen(issues: list[IssueItem]) -> None:
     )
 
     logging.debug("Updating last_seen flag for all %s issues", len(issues))
-    now_ts = int(datetime.now(timezone.utc).timestamp())
+    now_ts = int(datetime.now(UTC).timestamp())
     for issue in issues:
         if issue.uid in seen_issues_cached:
             seen_issues_cached[issue.uid]["last_seen"] = now_ts

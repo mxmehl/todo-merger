@@ -1,7 +1,7 @@
 """Main."""
 
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request
 from werkzeug.wrappers import Response
@@ -31,7 +31,7 @@ def index() -> str:
     )
     # Reset cache timer to now
     if not cache:
-        current_app.config["current_cache_timer"] = datetime.now(tz=timezone.utc)
+        current_app.config["current_cache_timer"] = datetime.now(tz=UTC)
 
     try:
         issues, stats, new_issues, degraded_services = get_issues_and_stats(
