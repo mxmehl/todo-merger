@@ -2,7 +2,7 @@
 
 import contextlib
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from dateutil import parser
 
@@ -62,9 +62,9 @@ def convert_to_datetime(timestamp: str | datetime) -> datetime:
 
     # If the datetime object is naive (no timezone), assume UTC
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
 
-    return dt.astimezone(timezone.utc)
+    return dt.astimezone(UTC)
 
 
 _DAYS_IN_YEAR = 365
@@ -76,7 +76,7 @@ _SECONDS_IN_MINUTE = 60
 
 def time_ago(dt: datetime) -> str:
     """Convert a datetime to a human-readable 'time ago' format."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     diff = now - dt
 
     if diff.days >= _DAYS_IN_YEAR:

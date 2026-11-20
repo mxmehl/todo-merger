@@ -2,7 +2,7 @@
 
 Get a unified overview of all issues and tasks assigned to you across multiple platforms. A local web dashboard that aggregates GitHub, GitLab, Gitea, and Microsoft Planner into a single view, with personal prioritisation and a private task list. Additionally, a CLI for quick access to your tasks and labels.
 
-![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue)](LICENSE.txt)
 [![PyPI](https://img.shields.io/pypi/v/todo-merger)](https://pypi.org/project/todo-merger/)
 
