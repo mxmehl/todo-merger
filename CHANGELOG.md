@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.2.0](https://github.com/mxmehl/todo-merger/compare/v2.1.5...v2.2.0) (2026-11-20)
+
+
+### 🚀 New Features
+
+* drop support for Python 3.10, add Python 3.15 ([#238](https://github.com/mxmehl/todo-merger/issues/238)) ([2b2c74a](https://github.com/mxmehl/todo-merger/commit/2b2c74a9c04c8b0bd219c4c8182bf2d7b1765be7))
+
+
+### ⚙️ Chores
+
+* **deps:** lock file maintenance ([#233](https://github.com/mxmehl/todo-merger/issues/233)) ([2b7ada9](https://github.com/mxmehl/todo-merger/commit/2b7ada9b169fb76f5085b36718470e0c807f872f))
+* **deps:** lock file maintenance ([#236](https://github.com/mxmehl/todo-merger/issues/236)) ([bf6f3cd](https://github.com/mxmehl/todo-merger/commit/bf6f3cd73f0bbb87b3b41f1969002700ea747941))
+* **deps:** lock file maintenance ([#237](https://github.com/mxmehl/todo-merger/issues/237)) ([39bd863](https://github.com/mxmehl/todo-merger/commit/39bd86319bdac4943bcff1ac16d7020e7f33a7c1))
+* **deps:** update astral-sh/setup-uv action to v10.3.3 ([#231](https://github.com/mxmehl/todo-merger/issues/231)) ([b79cbd8](https://github.com/mxmehl/todo-merger/commit/b79cbd80acfe9dfc291e1e0825b92ef4c7e71a4d))
+* **deps:** update zizmorcore/zizmor-action action to v0.8.1 ([#235](https://github.com/mxmehl/todo-merger/issues/235)) ([32a85f4](https://github.com/mxmehl/todo-merger/commit/32a85f4262c99dd1c3bb2e85d015ab11efc997c7))
+
 ## [2.1.5](https://github.com/mxmehl/todo-merger/compare/v2.1.4...v2.1.5) (2026-10-26)
 
 
